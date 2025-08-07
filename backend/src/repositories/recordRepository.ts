@@ -1,6 +1,8 @@
 import { db } from "../database/db";
 import { HospitalRecord } from "../models/hospitalRecord";
 import { UrgencyClassification } from "../models/hospitalRecord";
+import { insertCanceledRecord } from './recordBackupRepository';
+import { insertFinishedRecord } from './recordFinishedBackupRepository'; // ajuste o caminho
 
 export const RecordRepository = {
 
@@ -71,14 +73,6 @@ export const RecordRepository = {
       WHERE patient_id = ? AND status = 'Canceled'
     `).all(patient_id) as HospitalRecord[];
 
-    const insertBackup = db.prepare(`
-      INSERT INTO RecordBackup (
-        id, patient_id, admission_date, arrival_time, triage_call_time,
-        urgency_definition_time, urgency_classification, appointment_call_time,
-        triage_wait_time, appointment_wait_time, status, canceled_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `);
-
     const deleteCanceled = db.prepare(`
       DELETE FROM Record
       WHERE id = ?
@@ -86,13 +80,7 @@ export const RecordRepository = {
 
     const transaction = db.transaction(() => {
       for (const rec of canceledRecords) {
-        insertBackup.run(
-          rec.id, rec.patient_id, rec.admission_date, rec.arrival_time,
-          rec.triage_call_time, rec.urgency_definition_time, rec.urgency_classification,
-          rec.appointment_call_time, rec.triage_wait_time, rec.appointment_wait_time,
-          rec.status
-        );
-
+        insertCanceledRecord(rec);
         deleteCanceled.run(rec.id);
       }
     });
@@ -106,14 +94,6 @@ export const RecordRepository = {
       WHERE patient_id = ? AND status = 'Finished'
     `).all(patient_id) as HospitalRecord[];
 
-    const insertBackup = db.prepare(`
-      INSERT INTO RecordFinishedBackup (
-        id, patient_id, admission_date, arrival_time, triage_call_time,
-        urgency_definition_time, urgency_classification, appointment_call_time,
-        triage_wait_time, appointment_wait_time, status, finished_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `);
-
     const deleteFinished = db.prepare(`
       DELETE FROM Record
       WHERE id = ?
@@ -121,12 +101,7 @@ export const RecordRepository = {
 
     const transaction = db.transaction(() => {
       for (const rec of finishedRecords) {
-        insertBackup.run(
-          rec.id, rec.patient_id, rec.admission_date, rec.arrival_time,
-          rec.triage_call_time, rec.urgency_definition_time, rec.urgency_classification,
-          rec.appointment_call_time, rec.triage_wait_time, rec.appointment_wait_time,
-          rec.status
-        );
+        insertFinishedRecord(rec);
         deleteFinished.run(rec.id);
       }
     });
