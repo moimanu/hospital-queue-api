@@ -100,3 +100,86 @@ Cada log, enviado para uma API REST, terá o seu próprio endpoint.
 | `tempo_espera_atendimento`| TEXT                                                     |
 | `status`                  | ENUM("Aguardando Triagem", "Em triagem", "Aguardando Atendimento", "Finalizado", "Cancelado") |
 
+---
+
+DESENVOLVIMENTO 1)
+
+# Resumo do Projeto de Logs Hospitalares
+
+## Estrutura Geral
+
+Desenvolvimento de uma **API REST em Node.js + TypeScript** para registrar e controlar o fluxo de atendimento de pacientes no hospital, baseado em logs de eventos.
+
+---
+
+## Logs Implementados (4 Endpoints)
+
+### 1. `POST /logs/entry`
+- Registra a chegada do paciente.
+- Cancela registros anteriores ativos do paciente.
+- Cria um novo registro com status `"Waiting Triage"`.
+
+### 2. `PUT /logs/triage-call`
+- Verifica se o paciente existe e está aguardando triagem.
+- Atualiza o status para `"In Triage"`.
+- Calcula e armazena o tempo de espera desde a chegada.
+
+### 3. `PUT /logs/urgency-definition`
+- Verifica se o paciente existe e está na triagem.
+- Atualiza o status para `"Waiting Appointment"` com a classificação de urgência.
+- Registra o horário da definição de urgência.
+
+### 4. `PUT /logs/appointment-call`
+- Verifica se o paciente existe e já passou pela triagem.
+- Atualiza o status para `"Finished"`.
+- Calcula e armazena o tempo de espera entre a definição de urgência e o atendimento.
+
+---
+
+## Repositório (`RecordRepository`)
+- Métodos para:
+  - Inserir registro.
+  - Buscar o último registro ativo do paciente.
+  - Atualizar chamadas de triagem, definição de urgência e atendimento.
+  - Cancelar registros anteriores.
+
+---
+
+## Models
+- Interface `HospitalRecord`.
+- Enums:
+  - `UrgencyClassification`: triage, red, orange, yellow, green, blue.
+  - `RecordStatus`: Waiting Triage, In Triage, Waiting Appointment, Finished, Canceled.
+
+---
+
+## Refatoração Aplicada
+
+### Helpers de Tempo (`helpers/time.ts`)
+Criado para evitar duplicação de código:
+
+- `getCurrentTime()` — retorna hora no formato `HH:MM:SS`.
+- `calculateWaitTime(startDate, startTime)` — calcula tempo de espera formatado como `Xm Ys`.
+- `formatDuration(ms)` — função utilitária interna para formatar duração.
+
+Esta refatoração foi aplicada nos serviços de triagem e atendimento para tornar o código mais limpo e reutilizável.
+
+---
+
+## Boas Práticas Aplicadas
+
+- Tipagem segura com TypeScript.
+- Validação de dados e checagem de status.
+- Mensagens de erro claras e coerentes.
+- Documentação Swagger completa para todas as rotas.
+
+---
+
+## Próximos Passos Sugeridos
+
+- Testes automáticos.
+- Logger de erros.
+- Persistência mais robusta (ex: backup dos registros cancelados).
+- Geração de relatórios (ex: média de tempo de espera).
+
+---
