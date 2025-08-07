@@ -1,0 +1,389 @@
+/* --- Variáveis e Estilos Globais --- */
+
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --sub-bg-color: #ffffff;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --sub-bg-color: #1e1e1e;
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE e Edge */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-self: center;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+body::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari e Edge modernos */
+}
+
+/* --- Layout da Página --- */
+
+.queue-view {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 640px;
+}
+
+.info-view {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 680px;
+}
+
+/* --- Componentes de Navegação e Cabeçalho --- */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-title {
+    font-size: 18px;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-buttons button,
+a {
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+}
+
+.nav-buttons button:hover,
+.nav-buttons a:hover {
+    cursor: pointer;
+}
+
+/* --- Painel Central de Informações --- */
+
+.central-panel {
+    display: flex;
+    box-shadow: 0px 0px 30px rgb(0 0 0 / 8%);
+    border-radius: 15px;
+    padding: 20px;
+    flex-direction: row;
+    gap: 15px;
+    background-color: var(--sub-bg-color);
+}
+
+.count {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.central-panel img {
+    width: 60px;
+    height: 60px;
+    border-radius: 40px;
+}
+
+.counter {
+    font-size: 64px;
+    font-weight: bold;
+}
+
+.central-panel-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: 120px;
+    text-align: left;
+}
+
+.central-panel-caption {
+    text-align: left;
+    padding-left: 20px;
+    border-left: solid #ebebeb 1px;
+    display: flex;
+    align-items: center;
+}
+
+/* --- Lista de Cards e Estilos --- */
+
+.last-update-caption {
+    text-align: center;
+    font-size: 12px;
+}
+
+.cards-list {
+    gap: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-manchester {
+    list-style: none;
+    display: flex;
+    border-radius: 15px;
+    background-color: var(--sub-bg-color);
+    padding: 15px;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0px 0px 30px rgb(0 0 0 / 8%);
+    border-left: solid 15px #585858;
+}
+
+.side-a {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.card-header-manchester {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-header-manchester h3 {
+    font-size: 24px;
+}
+
+.color-circle {
+    width: 10px;
+    height: 10px;
+    background-color: #585858;
+    border-radius: 100px;
+}
+
+.time-caption {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time-caption p {
+    font-size: 12px;
+}
+
+.time-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.side-b {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.count-manchester {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-color);
+    border-radius: 10px;
+    height: 100%;
+    width: 60px;
+    box-shadow: inset 0px 0px 30px rgb(0 0 0 / 4%);
+}
+
+.count-manchester h3 {
+    font-size: 30px;
+}
+
+.count-manchester p {
+    font-size: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+/* --- Seções de Informação (Gráfico e Sobre) --- */
+
+.week-chart {
+    box-shadow: 0px 0px 30px rgb(0 0 0 / 8%);
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 640px;
+    box-sizing: border-box;
+    background-color: var(--sub-bg-color);
+}
+
+.chart-header {
+    padding-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.week-chart h3,
+.about h3 {
+    text-align: left;
+    font-size: 24px;
+}
+
+.about {
+    box-shadow: 0px 0px 30px rgb(0 0 0 / 8%);
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 640px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: var(--sub-bg-color);
+}
+
+.about p {
+    font-size: 14px;
+    text-align: justify;
+}
+
+/* --- Estilos do Gráfico --- */
+
+#chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 150px;
+    max-width: 800px;
+    margin-top: 30px;
+}
+
+/* --- Âncoras de rolagem --- */
+
+#about,
+#history {
+    scroll-margin-top: 20px;
+}
+
+/* --- Estilo do botão de Dark Mode --- */
+
+#darkModeToggle {
+    background-color: white;
+    border-radius: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+/* --- Media Queries --- */
+
+@media (max-width: 600px) {
+    .central-panel {
+        flex-direction: column;
+    }
+
+    .central-panel-caption {
+        border: none;
+        padding: 0px;
+    }
+}
+
+@media (max-width: 375px) {
+    .count {
+        flex-wrap: wrap;
+    }
+
+    .central-panel-title {
+        width: auto;
+    }
+
+    .side-b {
+        align-items: normal;
+    }
+
+    .card-manchester {
+        flex-direction: column;
+    }
+
+    .count-manchester {
+        flex-direction: row;
+        gap: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .count-manchester h3 {
+        font-size: 20px;
+    }
+
+    .count-manchester p {
+        text-align: left;
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 1024px) {
+    body {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .queue-view,
+    .info-view {
+        width: 50%;
+        max-width: 640px;
+        overflow: auto;
+        height: 100vh;
+    }
+
+    .info-view {
+        align-items: initial;
+    }
+
+    .queue-view {
+        overflow: scroll;
+        height: 100vh;
+        box-sizing: border-box;
+    }
+
+    #chart {
+        margin-top: 60px;
+    }
+
+    #anchorAbout,
+    #anchorHistory {
+        display: none;
+    }
+}

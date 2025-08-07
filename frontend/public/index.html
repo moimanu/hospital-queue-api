@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+  <head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Fila de Atendimento</title>
+  </head>
+  
+  <body>
+
+    <div class="queue-view">
+      <header class="header">
+        <h1 class="header-title">
+          Fila - Hospital Nome Genérico
+        </h1>
+
+        <nav class="nav-buttons">
+          <button id="darkModeToggle" onclick="toggleDarkMode()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+          <a id="anchorHistory" href="#history">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+          </a>
+          <a id="anchorAbout" href="#about">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </a>
+        </nav>
+      </header>
+
+      <div class="central-panel">
+        <div class="count">
+          <img src="img/Gif.gif" alt="Animação GIF - Perfis Alternando">
+          <p class="counter">0</p>
+          <p class="central-panel-title">Pessoas aguardando no local</p>
+        </div>
+        <p class="central-panel-caption">Fila, em tempo real, dos pacientes aguardando atendimento no Hospital Nome Genérico, em Ouro Branco - MG.</p>
+      </div>
+
+      <p class="last-update-caption">Última atualização: ------------------</p>
+
+      <ul class="cards-list">
+
+        <li id="triage" class="card-manchester">
+          <div class="side-a">
+            <div class="card-header-manchester">
+              <div class="color-circle"></div>
+              <h3>Triagem</h3>
+            </div>
+
+            <div class="time-caption">
+              <div class="time-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <p>Média de espera: ...</p>
+            </div>
+          </div>
+
+          <div class="side-b">
+            <div class="count-manchester">
+              <h3>0</h3>
+              <p>Pessoas Aguardando</p>
+            </div>
+          </div>
+        </li>
+
+        <li id="red" class="card-manchester">
+          <div class="side-a">
+            <div class="card-header-manchester">
+              <div class="color-circle"></div>
+              <h3>Vermelho</h3>
+            </div>
+
+            <div class="time-caption">
+              <div class="time-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <p>Média de espera: IMEDIATO</p>
+            </div>
+          </div>
+
+          <div class="side-b">
+            <div class="count-manchester">
+              <h3>0</h3>
+              <p>Pessoas Aguardando</p>
+            </div>
+          </div>
+        </li>
+
+        <li id="orange" class="card-manchester">
+          <div class="side-a">
+            <div class="card-header-manchester">
+              <div class="color-circle"></div>
+              <h3>Laranja</h3>
+            </div>
+
+            <div class="time-caption">
+              <div class="time-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <p>Média de espera: ...</p>
+            </div>
+          </div>
+
+          <div class="side-b">
+            <div class="count-manchester">
+              <h3>0</h3>
+              <p>Pessoas Aguardando</p>
+            </div>
+          </div>
+        </li>
+
+        <li id="yellow" class="card-manchester">
+          <div class="side-a">
+            <div class="card-header-manchester">
+              <div class="color-circle"></div>
+              <h3>Amarelo</h3>
+            </div>
+
+            <div class="time-caption">
+              <div class="time-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <p>Média de espera: ...</p>
+            </div>
+          </div>
+
+          <div class="side-b">
+            <div class="count-manchester">
+              <h3>0</h3>
+              <p>Pessoas Aguardando</p>
+            </div>
+          </div>
+        </li>
+        
+        <li id="green" class="card-manchester">
+          <div class="side-a">
+            <div class="card-header-manchester">
+              <div class="color-circle"></div>
+              <h3>Verde</h3>
+            </div>
+
+            <div class="time-caption">
+              <div class="time-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <p>Média de espera: ...</p>
+            </div>
+          </div>
+
+          <div class="side-b">
+            <div class="count-manchester">
+              <h3>0</h3>
+              <p>Pessoas Aguardando</p>
+            </div>
+          </div>
+        </li>
+
+        <li id="blue" class="card-manchester">
+          <div class="side-a">
+            <div class="card-header-manchester">
+              <div class="color-circle"></div>
+              <h3>Azul</h3>
+            </div>
+
+            <div class="time-caption">
+              <div class="time-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <p>Média de espera: ...</p>
+            </div>
+          </div>
+
+          <div class="side-b">
+            <div class="count-manchester">
+              <h3>0</h3>
+              <p>Pessoas Aguardando</p>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <div class="info-view">
+      <div id="history" class="week-chart">
+        <div class="chart-header">
+          <div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+          </div>
+          <h3>Histórico</h3>
+        </div>
+        <p>Quantidade de pessoas atendidas nos últimos 7 dias no hospital nome genérico.</p>
+        <canvas id="chart" width="400" height="200"></canvas>
+      </div>
+
+      <div id="about" class="about">
+        <div class="chart-header">
+          <div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </div>
+          <h3>Sobre o projeto</h3>
+        </div>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </div>
+    </div>
+
+    <script>
+      function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      }
+
+      // Carrega o tema salvo
+      window.onload = () => {
+        if (localStorage.getItem('darkMode') === 'true') {
+          document.body.classList.add('dark-mode');
+        }
+      };
+    </script>
+
+    <script>
+      const colorsById = {
+        red: '#e53935',
+        yellow: '#fbc02d',
+        green: '#43a047',
+        blue: '#1e88e5',
+        orange: '#fb8c00',
+        purple: '#8e24aa',
+        // add more colors as needed
+      };
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.card-manchester');
+
+        cards.forEach(card => {
+          const id = card.id;
+          const color = colorsById[id];
+
+          if (color) {
+            // Colored circle
+            const circle = card.querySelector('.color-circle');
+            if (circle) {
+              circle.style.backgroundColor = color;
+            }
+
+            // Left border of the card
+            card.style.borderLeft = `15px solid ${color}`;
+          }
+        });
+      });
+    </script>
+
+    <script type="module" src="script.js"></script>
+  </body>
+
+</html>
