@@ -1,0 +1,32 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Ambientes
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# IDEs/OS
+.DS_Store
+.vscode/
+.idea/
+
+# Swagger output (se estiver gerando arquivos)
+swagger.json
+swagger.yaml

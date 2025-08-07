@@ -1,0 +1,28 @@
+export type UrgencyClassification = 
+  | "triage" 
+  | "red" 
+  | "orange" 
+  | "yellow" 
+  | "green" 
+  | "blue";
+
+export type RecordStatus = 
+  | "Waiting Triage"
+  | "In Triage"
+  | "Waiting Appointment"
+  | "Finished"
+  | "Canceled";
+
+export interface HospitalRecord {
+  id?: number;
+  patient_id: string;
+  admission_date: string;
+  arrival_time: string;
+  triage_call_time?: string;
+  urgency_definition_time?: string;
+  urgency_classification?: UrgencyClassification;
+  appointment_call_time?: string;
+  triage_wait_time?: string;
+  appointment_wait_time?: string;
+  status: RecordStatus;
+}
