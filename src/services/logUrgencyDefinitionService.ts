@@ -1,5 +1,6 @@
 import { RecordRepository } from "../repositories/recordRepository";
 import { UrgencyClassification } from "../models/hospitalRecord";
+import { syncRealtimeDatabase } from "./firebaseSyncService";
 
 export const logUrgencyDefinitionService = {
   define(patient_id: string, classification: UrgencyClassification) {
@@ -21,5 +22,6 @@ export const logUrgencyDefinitionService = {
     const time = now.toTimeString().split(" ")[0]!;
 
     RecordRepository.updateUrgencyDefinition(patient_id, time, classification);
+    syncRealtimeDatabase().catch(console.error);
   }
 };

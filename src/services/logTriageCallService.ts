@@ -1,5 +1,6 @@
 import { RecordRepository } from "../repositories/recordRepository";
 import { getCurrentTime, calculateWaitTime } from "../helpers/time";
+import { syncRealtimeDatabase } from "./firebaseSyncService";
 
 export const logTriageCallService = {
   call(patient_id: string) {
@@ -21,5 +22,6 @@ export const logTriageCallService = {
     const triageWaitTime = calculateWaitTime(record.admission_date, record.arrival_time);
 
     RecordRepository.updateTriageCall(patient_id, nowTime, triageWaitTime);
+    syncRealtimeDatabase().catch(console.error);
   }
 };

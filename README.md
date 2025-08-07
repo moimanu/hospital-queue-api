@@ -102,7 +102,7 @@ Cada log, enviado para uma API REST, terá o seu próprio endpoint.
 
 ---
 
-DESENVOLVIMENTO 1)
+DESENVOLVIMENTO 1
 
 # Resumo do Projeto de Logs Hospitalares
 
@@ -183,3 +183,76 @@ Esta refatoração foi aplicada nos serviços de triagem e atendimento para torn
 - Geração de relatórios (ex: média de tempo de espera).
 
 ---
+
+DESENVOLVIMENTO 2
+
+## Resumo das mudanças na estrutura do banco de dados
+
+### Criação de tabelas de backup
+
+Foram criadas duas novas tabelas para garantir uma **persistência mais robusta** dos dados:
+
+---
+
+### 1. `RecordBackup`
+
+Armazena os registros **cancelados**, preservando todas as informações da tabela principal e adicionando:
+
+- `canceled_at`: armazena automaticamente a data e hora do cancelamento  
+  *(valor padrão: `datetime('now')` no SQLite)*
+
+---
+
+### 2. `RecordFinishedBackup`
+
+Armazena os registros **finalizados**, com os mesmos dados da tabela original e uma coluna extra:
+
+- `finished_at`: registra a data e hora da finalização  
+  *(valor padrão: `datetime('now')` no SQLite)*
+
+---
+
+### Tipagem coerente
+
+- Todas as colunas de data e hora foram padronizadas com o tipo `TEXT`  
+  *(recomendado no SQLite para formato ISO `YYYY-MM-DD HH:MM:SS`)*
+- As colunas `id` das tabelas de backup **não usam `AUTOINCREMENT`**, para preservar o ID original do registro.
+- Colunas com dados essenciais foram mantidas com `NOT NULL`, especialmente na `RecordFinishedBackup`.
+
+---
+
+DESENVOLVIMENTO 3
+
+## Objetivo
+
+Criar uma função `syncRealtimeDatabase()` para atualizar estatísticas em tempo real no **Firebase Realtime Database** com dados locais do **SQLite**.
+
+---
+
+## Configurações
+
+- Firebase Realtime Database foi configurado usando `firebase-admin`.
+- Criado um módulo `firebaseAdmin.ts` que chama `admin.initializeApp()` com:
+  - o caminho da chave de serviço (`.json`),
+  - e a `databaseURL` do seu projeto.
+
+---
+
+## Dados enviados para o Firebase
+
+A função `syncRealtimeDatabase()` atualiza o nó `stats/` com:
+
+- `last_update`: horário atual em formato ISO.
+- `total_people`: quantidade total de registros **exceto** os com status `"in_triage"`.
+- `current_state`: estatísticas por nível de urgência:
+  - `count`: número de registros no nível.
+  - `avg_time`: tempo médio de espera para o nível.
+- `last_days`: (opcional) contador de registros por **dia da semana** — usa os dados atuais do Firebase, se existirem.
+
+---
+
+## Refatoração feita
+
+- Criada a função `countAllExceptInTriage()` no `RecordRepository` com a seguinte query:
+  ```sql
+  SELECT COUNT(*) FROM Record WHERE status != 'In Triage'

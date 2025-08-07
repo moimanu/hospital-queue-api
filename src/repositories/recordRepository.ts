@@ -1,5 +1,6 @@
 import { db } from "../database/db";
-import { HospitalRecord} from "../models/hospitalRecord";
+import { HospitalRecord } from "../models/hospitalRecord";
+import { UrgencyClassification } from "../models/hospitalRecord";
 
 export const RecordRepository = {
 
@@ -131,5 +132,72 @@ export const RecordRepository = {
     });
 
     transaction();
+  },
+
+  countAll(): number {
+    const stmt = db.prepare("SELECT COUNT(*) as count FROM Record");
+    const result = stmt.get() as { count: number } | undefined;
+    return result?.count ?? 0;
+  },
+
+  countAllExceptInTriage(): number {
+    const stmt = db.prepare("SELECT COUNT(*) as count FROM Record WHERE status != 'In Triage'");
+    const result = stmt.get() as { count: number } | undefined;
+    return result?.count ?? 0;
+  },
+
+  calculateAverageWait(urgency: UrgencyClassification): { count: number; avg: number } {
+    const stmt = db.prepare(`
+      SELECT 
+        COUNT(*) as count,
+        AVG(
+          JULIANDAY(appointment_call_time) - JULIANDAY(urgency_definition_time)
+        ) * 24 * 60 AS avg_minutes
+      FROM Record
+      WHERE urgency_classification = ?
+        AND appointment_call_time IS NOT NULL
+        AND urgency_definition_time IS NOT NULL
+    `);
+
+    const result = stmt.get(urgency) as { count: number; avg_minutes: number } | undefined;
+
+    return {
+      count: result?.count ?? 0,
+      avg: result?.avg_minutes ?? 0
+    };
+  },
+
+  countAdmissionsByDayOfWeek(): Record<string, number> {
+    const stmt = db.prepare(`
+      SELECT 
+        STRFTIME('%w', admission_date) as weekday, 
+        COUNT(*) as count 
+      FROM Record
+      GROUP BY weekday
+    `);
+
+    const result = stmt.all() as { weekday: string; count: number }[];
+
+    const dayMap: Record<"0" | "1" | "2" | "3" | "4" | "5" | "6", string> = {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    };
+
+    const counts: Record<string, number> = {
+      Sunday: 0, Monday: 0, Tuesday: 0,
+      Wednesday: 0, Thursday: 0, Friday: 0, Saturday: 0
+    };
+
+    for (const row of result) {
+      const day = dayMap[row.weekday as "0" | "1" | "2" | "3" | "4" | "5" | "6"];
+      counts[day] = row.count;
+    }
+
+    return counts;
   }
 };

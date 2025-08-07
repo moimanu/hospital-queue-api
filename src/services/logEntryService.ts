@@ -1,4 +1,5 @@
 import { RecordRepository } from "../repositories/recordRepository";
+import { syncRealtimeDatabase } from "./firebaseSyncService";
 
 export const logEntryService = {
   register(patient_id: string) {
@@ -15,5 +16,6 @@ export const logEntryService = {
       arrival_time: time,
       status: "Waiting Triage"
     });
+    syncRealtimeDatabase().catch(console.error);
   }
 };

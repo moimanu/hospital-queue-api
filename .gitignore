@@ -30,3 +30,6 @@ logs/
 # Swagger output (se estiver gerando arquivos)
 swagger.json
 swagger.yaml
+
+# Firebase
+/src/firebase/serviceAccountKey.json
