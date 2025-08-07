@@ -27,3 +27,87 @@ export const logRoutes = Router();
  *         description: Internal server error
  */
 logRoutes.post("/entry", logController.entry);
+
+/**
+ * @swagger
+ * /logs/triage-call:
+ *   put:
+ *     summary: Log triage call for patient
+ *     tags: [Logs]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               patient_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Triage called successfully
+ *       400:
+ *         description: Patient already called or passed triage
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Internal server error
+ */
+logRoutes.put("/triage-call", logController.triageCall);
+
+/**
+ * @swagger
+ * /logs/urgency-definition:
+ *   put:
+ *     summary: Define urgency classification for a patient
+ *     tags: [Logs]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               patient_id:
+ *                 type: string
+ *               classification:
+ *                 type: string
+ *                 enum: [red, orange, yellow, green, blue]
+ *     responses:
+ *       200:
+ *         description: Urgency defined successfully
+ *       400:
+ *         description: Invalid status transition
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Internal server error
+ */
+logRoutes.put("/urgency-definition", logController.urgencyDefinition);
+
+/**
+ * @swagger
+ * /logs/appointment-call:
+ *   put:
+ *     summary: Register appointment call for a patient
+ *     tags: [Logs]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               patient_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Appointment call registered successfully
+ *       400:
+ *         description: Invalid patient status
+ *       404:
+ *         description: Patient not found
+ *       500:
+ *         description: Internal server error
+ */
+logRoutes.put("/appointment-call", logController.appointmentCall);
