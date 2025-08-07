@@ -256,3 +256,54 @@ A função `syncRealtimeDatabase()` atualiza o nó `stats/` com:
 - Criada a função `countAllExceptInTriage()` no `RecordRepository` com a seguinte query:
   ```sql
   SELECT COUNT(*) FROM Record WHERE status != 'In Triage'
+
+---
+
+DESENVOLVIMENTO 4
+
+## Refatoração do `logController`
+
+### Problema original
+O controller possuía código **repetitivo** em todas as rotas, como:
+- Verificação de campos obrigatórios (`if (!campo)`)
+- Execução do serviço (`logXService.doSomething`)
+- `try/catch` para tratamento de erros
+- Retorno de mensagens padrão
+
+---
+
+### Solução aplicada
+Criado um **helper genérico** chamado `handleLogAction` que:
+1. Valida campos obrigatórios
+2. Executa a ação desejada
+3. Retorna resposta HTTP adequada
+
+---
+
+### Estrutura criada
+- Novo arquivo: `src/helpers/handleLogAction.ts`
+- Função `handleLogAction(req, res, requiredFields, action, successMessage)`
+- Cada método do controller passou a usar o helper
+
+---
+
+### Exemplo de antes e depois
+
+**Antes:**
+```ts
+if (!patient_id) {
+  return res.status(400).json({ error: "Missing patient_id" });
+}
+try {
+  logEntryService.register(patient_id);
+  return res.status(201).json({ message: "Entry registered successfully." });
+} catch (err) {
+  return res.status(500).json({ error: "Internal server error." });
+}
+```
+**Depois:**
+```ts
+return handleLogAction(req, res, ["patient_id"], ({ patient_id }) => {
+  logEntryService.register(patient_id);
+}, "Entry registered successfully.");
+```

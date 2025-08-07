@@ -1,70 +1,32 @@
 import { Request, Response } from "express";
+import { handleLogAction } from "../helpers/handleLogAction";
 import { logEntryService } from "../services/logEntryService";
 import { logTriageCallService } from "../services/logTriageCallService";
 import { logUrgencyDefinitionService } from "../services/logUrgencyDefinitionService";
 import { logAppointmentCallService } from "../services/logAppointmentCallService";
 
 export const logController = {
-  
-  // Entrance to the hospital
   entry(req: Request, res: Response) {
-    const { patient_id } = req.body;
-
-    if (!patient_id) { 
-      return res.status(400).json({ error: "Missing patient_id" });
-    }
-
-    try {
+    return handleLogAction(req, res, ["patient_id"], ({ patient_id }) => {
       logEntryService.register(patient_id);
-      return res.status(201).json({ message: "Entry registered successfully." });
-    } catch (err) { return res.status(500).json({ error: "Internal server error." });}
+    }, "Entry registered successfully.");
   },
 
-  // Call to attend screening
   triageCall(req: Request, res: Response) {
-    const { patient_id } = req.body;
-
-    if (!patient_id) {
-      return res.status(400).json({ error: "Missing patient_id" });
-    }
-
-    try {
+    return handleLogAction(req, res, ["patient_id"], ({ patient_id }) => {
       logTriageCallService.call(patient_id);
-      return res.status(200).json({ message: "Triage called successfully." });
-    } catch (err: any) {
-      return res.status(err.status || 500).json({ error: err.message || "Internal server error." });
-    }
+    }, "Triage called successfully.");
   },
 
-  // Defining patient urgency after triage
   urgencyDefinition(req: Request, res: Response) {
-    const { patient_id, classification } = req.body;
-
-    if (!patient_id || !classification) {
-      return res.status(400).json({ error: "Missing patient_id or classification" });
-    }
-
-    try {
+    return handleLogAction(req, res, ["patient_id", "classification"], ({ patient_id, classification }) => {
       logUrgencyDefinitionService.define(patient_id, classification);
-      return res.status(200).json({ message: "Urgency defined successfully." });
-    } catch (err: any) {
-      return res.status(err.status || 500).json({ error: err.message || "Internal server error." });
-    }
+    }, "Urgency defined successfully.");
   },
 
-  // Call the patient for care
   appointmentCall(req: Request, res: Response) {
-    const { patient_id } = req.body;
-
-    if (!patient_id) {
-      return res.status(400).json({ error: "Missing patient_id" });
-    }
-
-    try {
+    return handleLogAction(req, res, ["patient_id"], ({ patient_id }) => {
       logAppointmentCallService.call(patient_id);
-      return res.status(200).json({ message: "Appointment call registered successfully." });
-    } catch (err: any) {
-      return res.status(err.status || 500).json({ error: err.message || "Internal server error." });
-    }
+    }, "Appointment call registered successfully.");
   }
 };
