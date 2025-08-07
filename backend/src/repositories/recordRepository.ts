@@ -24,10 +24,10 @@ export const RecordRepository = {
   insert(record: HospitalRecord) {
     const stmt = db.prepare(`
       INSERT INTO Record (
-        patient_id, admission_date, arrival_time, status
-      ) VALUES (?, ?, ?, ?)
+        patient_id, admission_date, arrival_time, urgency_classification, status
+      ) VALUES (?, ?, ?, ?, ?)
     `);
-    stmt.run(record.patient_id, record.admission_date, record.arrival_time, record.status);
+    stmt.run(record.patient_id, record.admission_date, record.arrival_time, "triage", record.status);
   },
 
   findLatestByPatient(patient_id: string): HospitalRecord | undefined {
@@ -146,25 +146,27 @@ export const RecordRepository = {
     return result?.count ?? 0;
   },
 
-  calculateAverageWait(urgency: UrgencyClassification): { count: number; avg: number } {
+  countByUrgency(urgency: UrgencyClassification): number {
     const stmt = db.prepare(`
-      SELECT 
-        COUNT(*) as count,
-        AVG(
-          JULIANDAY(appointment_call_time) - JULIANDAY(urgency_definition_time)
-        ) * 24 * 60 AS avg_minutes
+      SELECT COUNT(*) as count
       FROM Record
-      WHERE urgency_classification = ?
-        AND appointment_call_time IS NOT NULL
-        AND urgency_definition_time IS NOT NULL
+      WHERE urgency_classification = ? AND status != 'In Triage'
     `);
 
-    const result = stmt.get(urgency) as { count: number; avg_minutes: number } | undefined;
+    const result = stmt.get(urgency) as { count: number } | undefined;
 
-    return {
-      count: result?.count ?? 0,
-      avg: result?.avg_minutes ?? 0
-    };
+    return result?.count ?? 0;
+  },
+
+  calculateAverageWaitByUrgency(urgency: UrgencyClassification): number {
+
+    /* IMPLEMENTAR
+    * 
+    *  O preblema de calcular a média reside no fato de que registros com "triage" 
+    *  só existem em uma tabela (Record), enquanto que os outros níveis estão em outra tabela.
+    */
+
+    return 0;
   },
 
   countAdmissionsByDayOfWeek(): Record<string, number> {

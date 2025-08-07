@@ -20,16 +20,17 @@ export async function syncRealtimeDatabase() {
   const isoNow = now.toISOString(); // Formato ISO para facilitar a leitura e ordenação
   const weekday = now.toLocaleDateString("en-US", { weekday: "long" }); // Nome do dia da semana
 
-  // Conta todas as pessoas, exceto aquelas com status "in_triage"
+  // Conta todas as pessoas, exceto aquelas com status "IN Triage"
   const totalPeople = RecordRepository.countAllExceptInTriage();
 
   // Calcula a quantidade e tempo médio de espera para cada nível de urgência
   const currentState: Record<string, { count: number; avg_time: number }> = {};
   for (const level of urgencyLevels) {
-    const stats = RecordRepository.calculateAverageWait(level); // Retorna { count, avg }
+    const count = RecordRepository.countByUrgency(level);
+    const avg = RecordRepository.calculateAverageWaitByUrgency(level);
     currentState[level] = {
-      count: stats.count,
-      avg_time: stats.avg
+      count,
+      avg_time: avg
     };
   }
 
@@ -52,6 +53,6 @@ export async function syncRealtimeDatabase() {
   try {
     await dbRef.update(updatedData);
   } catch (error) {
-    console.error("Failed to update Firebase Realtime Database:", error); // Loga erro, se ocorrer
+    console.error("Failed to update Firebase Realtime Database:", error);
   }
 }
