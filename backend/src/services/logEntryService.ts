@@ -16,6 +16,6 @@ export const logEntryService = {
       arrival_time: time,
       status: "Waiting Triage"
     });
-    syncRealtimeDatabase().catch(console.error);
+    syncRealtimeDatabase(true).catch(console.error);
   }
 };

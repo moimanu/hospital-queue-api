@@ -143,38 +143,4 @@ export const RecordRepository = {
 
     return 0;
   },
-
-  countAdmissionsByDayOfWeek(): Record<string, number> {
-    const stmt = db.prepare(`
-      SELECT 
-        STRFTIME('%w', admission_date) as weekday, 
-        COUNT(*) as count 
-      FROM Record
-      GROUP BY weekday
-    `);
-
-    const result = stmt.all() as { weekday: string; count: number }[];
-
-    const dayMap: Record<"0" | "1" | "2" | "3" | "4" | "5" | "6", string> = {
-      "0": "Sunday",
-      "1": "Monday",
-      "2": "Tuesday",
-      "3": "Wednesday",
-      "4": "Thursday",
-      "5": "Friday",
-      "6": "Saturday"
-    };
-
-    const counts: Record<string, number> = {
-      Sunday: 0, Monday: 0, Tuesday: 0,
-      Wednesday: 0, Thursday: 0, Friday: 0, Saturday: 0
-    };
-
-    for (const row of result) {
-      const day = dayMap[row.weekday as "0" | "1" | "2" | "3" | "4" | "5" | "6"];
-      counts[day] = row.count;
-    }
-
-    return counts;
-  }
 };

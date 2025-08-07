@@ -8,48 +8,43 @@ const urgencyLevels: UrgencyClassification[] = [
 ];
 
 // Função responsável por sincronizar as estatísticas locais com o Firebase Realtime Database
-export async function syncRealtimeDatabase() {
-  const db = admin.database(); // Obtém a instância do Realtime Database
-  const dbRef = db.ref("stats"); // Cria referência para o nó "stats"
+export async function syncRealtimeDatabase(incrementDay = false) {
+  const db = admin.database();
+  const dbRef = db.ref("stats");
 
-  // Lê o estado atual salvo no nó "stats"
   const snapshot = await dbRef.once("value");
-  const data = snapshot.exists() ? snapshot.val() : {}; // Se houver dados, usa-os; caso contrário, inicia vazio
+  const data = snapshot.exists() ? snapshot.val() : {};
 
-  const now = new Date(); // Obtém o momento atual
-  const isoNow = now.toISOString(); // Formato ISO para facilitar a leitura e ordenação
-  const weekday = now.toLocaleDateString("en-US", { weekday: "long" }); // Nome do dia da semana
+  const now = new Date();
+  const isoNow = now.toISOString();
+  const weekday = now.toLocaleDateString("en-US", { weekday: "long" });
 
-  // Conta todas as pessoas, exceto aquelas com status "IN Triage"
   const totalPeople = RecordRepository.countAllExceptInTriage();
 
-  // Calcula a quantidade e tempo médio de espera para cada nível de urgência
   const currentState: Record<string, { count: number; avg_time: number }> = {};
   for (const level of urgencyLevels) {
     const count = RecordRepository.countByUrgency(level);
     const avg = RecordRepository.calculateAverageWaitByUrgency(level);
-    currentState[level] = {
-      count,
-      avg_time: avg
-    };
+    currentState[level] = { count, avg_time: avg };
   }
 
-  // Atualiza a contagem de registros por dia da semana
   const lastDays = data.last_days || {
     Sunday: 0, Monday: 0, Tuesday: 0,
     Wednesday: 0, Thursday: 0, Friday: 0, Saturday: 0
   };
-  lastDays[weekday] = (lastDays[weekday] || 0) + 1;
 
-  // Monta os dados atualizados para envio ao Realtime Database
+  // Incrementa só se explicitamente solicitado
+  if (incrementDay) {
+    lastDays[weekday] = (lastDays[weekday] || 0) + 1;
+  }
+
   const updatedData = {
-    last_update: isoNow,          // Data/hora da última atualização
-    total_people: totalPeople,    // Total de pessoas atualmente no sistema
-    current_state: currentState,  // Estatísticas por nível de urgência
-    last_days: lastDays           // Contagem de atendimentos por dia da semana
+    last_update: isoNow,
+    total_people: totalPeople,
+    current_state: currentState,
+    last_days: lastDays
   };
 
-  // Envia os dados atualizados para o Firebase
   try {
     await dbRef.update(updatedData);
   } catch (error) {
