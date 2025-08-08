@@ -6,7 +6,7 @@ const insertBackupStmt = db.prepare(`
     id, patient_id, admission_date, arrival_time, triage_call_time,
     urgency_definition_time, urgency_classification, appointment_call_time,
     triage_wait_time, appointment_wait_time, status, finished_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
 `);
 
 export const insertFinishedRecord = (record: HospitalRecord) => {
