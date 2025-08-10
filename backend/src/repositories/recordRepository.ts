@@ -1,8 +1,8 @@
 import { db } from "../database/db";
 import { HospitalRecord } from "../models/hospitalRecord";
 import { UrgencyClassification } from "../models/hospitalRecord";
-import { insertCanceledRecord } from './recordBackupRepository';
-import { insertFinishedRecord } from './recordFinishedBackupRepository'; // ajuste o caminho
+import { RecordCanceledRepository } from './recordCanceledRepository';
+import { RecordFinishedRepository } from './recordFinishedRepository';
 
 export const RecordRepository = {
 
@@ -80,7 +80,7 @@ export const RecordRepository = {
 
     const transaction = db.transaction(() => {
       for (const rec of canceledRecords) {
-        insertCanceledRecord(rec);
+        RecordCanceledRepository.insertCanceledRecord(rec);
         deleteCanceled.run(rec.id);
       }
     });
@@ -101,7 +101,7 @@ export const RecordRepository = {
 
     const transaction = db.transaction(() => {
       for (const rec of finishedRecords) {
-        insertFinishedRecord(rec);
+        RecordFinishedRepository.insertFinishedRecord(rec);
         deleteFinished.run(rec.id);
       }
     });
@@ -133,7 +133,7 @@ export const RecordRepository = {
     return result?.count ?? 0;
   },
 
-  calculateAverageWaitByUrgency(urgency: UrgencyClassification): number {
+  calculateAverageWaitByDefinedUrgency(urgency: UrgencyClassification): number {
 
     /* IMPLEMENTAR
     * 

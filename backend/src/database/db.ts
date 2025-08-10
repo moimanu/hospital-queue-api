@@ -19,7 +19,7 @@ db.exec(`
     status TEXT
   );
 
-  CREATE TABLE IF NOT EXISTS RecordBackup (
+  CREATE TABLE IF NOT EXISTS RecordCanceled (
     id INTEGER PRIMARY KEY,
     patient_id TEXT NOT NULL,
     admission_date TEXT,
@@ -34,7 +34,7 @@ db.exec(`
     canceled_at TEXT DEFAULT (datetime('now'))
   );
 
-  CREATE TABLE IF NOT EXISTS RecordFinishedBackup (
+  CREATE TABLE IF NOT EXISTS RecordFinished (
     id INTEGER PRIMARY KEY,
     patient_id TEXT NOT NULL,
     admission_date TEXT NOT NULL,

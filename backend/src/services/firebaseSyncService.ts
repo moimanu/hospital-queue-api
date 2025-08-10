@@ -24,7 +24,7 @@ export async function syncRealtimeDatabase(incrementDay = false) {
   const currentState: Record<string, { count: number; avg_time: number }> = {};
   for (const level of urgencyLevels) {
     const count = RecordRepository.countByUrgency(level);
-    const avg = RecordRepository.calculateAverageWaitByUrgency(level);
+    const avg = RecordRepository.calculateAverageWaitByDefinedUrgency(level);
     currentState[level] = { count, avg_time: avg };
   }
 

@@ -19,8 +19,8 @@ export const logController = {
   },
 
   urgencyDefinition(req: Request, res: Response) {
-    return handleLogAction(req, res, ["patient_id", "classification"], ({ patient_id, classification }) => {
-      logUrgencyDefinitionService.define(patient_id, classification);
+    return handleLogAction(req, res, ["patient_id", "urgency_classification"], ({ patient_id, urgency_classification }) => {
+      logUrgencyDefinitionService.define(patient_id, urgency_classification);
     }, "Urgency defined successfully.");
   },
 

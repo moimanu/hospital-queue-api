@@ -60,8 +60,8 @@ backend/
 │ │ └── hospitalRecord.ts                      # Modelo de registro hospitalar
 │ │
 │ ├── repositories/                            # Camada de acesso a dados
-│ │ ├── recordBackupRepository.ts              # Backups de registros em andamento
-│ │ ├── recordFinishedBackupRepository.ts      # Backups de registros finalizados
+│ │ ├── recordCanceledRepository.ts            # Backups de registros em andamento
+│ │ ├── recordFinishedRepository.ts            # Backups de registros finalizados
 │ │ └── recordRepository.ts                    # CRUD principal da tabela de registros
 │ │
 │ ├── routes/                                  # Definição de rotas
@@ -237,7 +237,7 @@ Registra a chamada do paciente para o atendimento no hospital.
 
 ---
 
-### Tabela: `RecordBackup`
+### Tabela: `recordCanceled`
 
 Mesmos campos da tabela `Record` com adição de:
 
@@ -247,7 +247,7 @@ Mesmos campos da tabela `Record` com adição de:
 
 ---
 
-### Tabela: `RecordFinishedBackup`
+### Tabela: `recordFinished`
 
 Mesmos campos da tabela `Record` com adição de:
 

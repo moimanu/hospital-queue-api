@@ -70,9 +70,9 @@ logRoutes.put("/triage-call", logController.triageCall);
  *             properties:
  *               patient_id:
  *                 type: string
- *               classification:
+ *               urgency_classification:
  *                 type: string
- *                 enum: [red, orange, yellow, green, blue]
+ *                 enum: [blue, green, yellow, orange, red]
  *     responses:
  *       200:
  *         description: Urgency defined successfully
