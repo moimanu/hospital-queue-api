@@ -84,7 +84,6 @@ backend/
 ├── database.db                                # Banco de dados SQLite
 ├── package-lock.json                          # Registro exato das versões das dependências
 ├── package.json                               # Metadados e dependências do projeto
-├── README.md                                  # Documentação inicial do backend
 └── tsconfig.json                              # Configuração do compilador TypeScript
 ```
 
@@ -126,7 +125,7 @@ O backend lida com as 4 rotas principais para manipulação de registros no sist
 
 ---
 
-### POST /logs/entry
+### POST/logs/entry
 
 **O que ela faz:**  
 Registra a chegada de um paciente no hospital.
@@ -139,7 +138,7 @@ Registra a chegada de um paciente no hospital.
 
 ---
 
-### PUT /logs/triage-call
+### PUT/logs/triage-call
 
 **O que ela faz:**  
 Registra a chamada do paciente para a triagem no hospital.
@@ -154,7 +153,7 @@ Registra a chamada do paciente para a triagem no hospital.
 
 ---
 
-### PUT /logs/urgency-definition
+### PUT/logs/urgency-definition
 
 **O que ela faz:**  
 Registra a definição da classificação de urgência de um paciente.
@@ -170,7 +169,7 @@ Registra a definição da classificação de urgência de um paciente.
 
 ---
 
-### PUT /logs/appointment-call
+### PUT/logs/appointment-call
 
 **O que ela faz:**  
 Registra a chamada do paciente para o atendimento no hospital.
@@ -190,10 +189,10 @@ Registra a chamada do paciente para o atendimento no hospital.
 
 | Requisição                  | Campos Atualizados                                    | Status Atualizado        | Observações                                                                                     |
 |----------------------------|------------------------------------------------------|-------------------------|------------------------------------------------------------------------------------------------|
-| **POST /logs/entry**        | `patient_id`, `admission_date`, `arrival_time`, `urgency_classification = "triage"` | `"Waiting Triage"`      | Cancela registros ativos anteriores do paciente, antes de criar novo, e os move para `RecordBackup`. |
+| **POST /logs/entry**        | `patient_id`, `admission_date`, `arrival_time`, `urgency_classification = "triage"` | `"Waiting Triage"`      | Cancela registros ativos anteriores do paciente, antes de criar novo, e os move para `RecordCanceled`. |
 | **PUT /logs/triage-call**   | `triage_call_time`, `triage_wait_time`               | `"In Triage"`           | Atualiza tempo de espera baseado em `arrival_time`.                                            |
 | **PUT /logs/urgency-definition** | `urgency_definition_time`, `urgency_classification` | `"Waiting Appointment"` | Recebe a classificação de urgência e atualiza o status.                                       |
-| **PUT /logs/appointment-call** | `appointment_call_time`, `appointment_wait_time`     | `"Finished"`            | Atualiza tempo de espera baseado em `urgency_definition_time` e move para `RecordFinishedBackup`. |
+| **PUT /logs/appointment-call** | `appointment_call_time`, `appointment_wait_time`     | `"Finished"`            | Atualiza tempo de espera baseado em `urgency_definition_time` e move para `RecordFinished`. |
 
 ---
 
@@ -201,19 +200,19 @@ Registra a chamada do paciente para o atendimento no hospital.
 
 | Etapa / Campo               | id | patient_id | admission_date | arrival_time | triage_call_time | urgency_definition_time | urgency_classification | appointment_call_time | triage_wait_time | appointment_wait_time | status             |
 |----------------------------|----|------------|----------------|--------------|------------------|------------------------|-----------------------|----------------------|------------------|----------------------|--------------------|
-| POST /logs/entry           | 1  | 12345      | 2025-08-10     | 08:00:00     | —                | —                      | triage                | —                    | —                | —                    | Waiting Triage      |
-| PUT /logs/triage-call      | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | —                      | triage                | —                    | 00:15:00         | —                    | In Triage           |
-| PUT /logs/urgency-definition | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | 08:30:00               | orange                | —                    | 00:15:00         | —                    | Waiting Appointment |
-| PUT /logs/appointment-call | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | 08:30:00               | orange                | 08:50:00             | 00:15:00         | 00:20:00             | Finished            |
+| POST/logs/entry           | 1  | 12345      | 2025-08-10     | 08:00:00     | —                | —                      | triage                | —                    | —                | —                    | Waiting Triage      |
+| PUT/logs/triage-call      | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | —                      | triage                | —                    | 00:15:00         | —                    | In Triage           |
+| PUT/logs/urgency-definition | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | 08:30:00               | orange                | —                    | 00:15:00         | —                    | Waiting Appointment |
+| PUT/logs/appointment-call | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | 08:30:00               | orange                | 08:50:00             | 00:15:00         | 00:20:00             | Finished            |
 
 ---
 
 ### Explicação do exemplo
 
-- **POST /logs/entry:** paciente "12345" chega no hospital às 08:00, registro criado com status "Waiting Triage".  
-- **PUT /logs/triage-call:** paciente chamado para triagem às 08:15, tempo de espera para triagem registrado (15 minutos), status vira "In Triage".  
-- **PUT /logs/urgency-definition:** triagem finalizada e urgência definida como "orange" às 08:30, status vira "Waiting Appointment".  
-- **PUT /logs/appointment-call:** paciente chamado para atendimento às 08:50, tempo de espera para atendimento registrado (20 minutos), status vira "Finished" e registro é movido para backup.
+- **POST/logs/entry:** paciente "12345" chega no hospital às 08:00, registro criado com status "Waiting Triage".  
+- **PUT/logs/triage-call:** paciente chamado para triagem às 08:15, tempo de espera para triagem registrado (15 minutos), status vira "In Triage".  
+- **PUT/logs/urgency-definition:** triagem finalizada e urgência definida como "orange" às 08:30, status vira "Waiting Appointment".  
+- **PUT/logs/appointment-call:** paciente chamado para atendimento às 08:50, tempo de espera para atendimento registrado (20 minutos), status vira "Finished" e registro é movido para backup.
 
 ---
 

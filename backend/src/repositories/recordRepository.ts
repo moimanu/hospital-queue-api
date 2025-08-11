@@ -24,12 +24,30 @@ export const RecordRepository = {
   },
 
   insert(record: HospitalRecord) {
-    const stmt = db.prepare(`
+    const insertRecordStmt = db.prepare(`
       INSERT INTO Record (
         patient_id, admission_date, arrival_time, urgency_classification, status
       ) VALUES (?, ?, ?, ?, ?)
     `);
-    stmt.run(record.patient_id, record.admission_date, record.arrival_time, "triage", record.status);
+
+    const insertOrIncrementLastDaysStmt = db.prepare(`
+      INSERT INTO LastDays (date, quantity)
+      VALUES (?, 1)
+      ON CONFLICT(date) DO UPDATE SET quantity = quantity + 1
+    `);
+
+    const transaction = db.transaction((rec: HospitalRecord) => {
+      insertRecordStmt.run(
+        rec.patient_id,
+        rec.admission_date,
+        rec.arrival_time,
+        "triage",
+        rec.status
+      );
+      insertOrIncrementLastDaysStmt.run(rec.admission_date);
+    });
+
+    transaction(record);
   },
 
   findLatestByPatient(patient_id: string): HospitalRecord | undefined {

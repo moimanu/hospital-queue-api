@@ -33,3 +33,4 @@ swagger.yaml
 
 # Firebase
 /src/firebase/serviceAccountKey.json
+/src/firebase/exampleJsonRealtimeDatabase.json

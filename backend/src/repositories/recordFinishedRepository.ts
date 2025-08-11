@@ -1,5 +1,5 @@
 import { db } from "../database/db";
-import { HospitalRecord, UrgencyClassification } from "../models/hospitalRecord";
+import { HospitalRecord } from "../models/hospitalRecord";
 
 const insertBackupStmt = db.prepare(`
   INSERT INTO RecordFinished (

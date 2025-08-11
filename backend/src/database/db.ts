@@ -48,6 +48,11 @@ db.exec(`
     status TEXT NOT NULL,
     finished_at TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS LastDays (
+    date TEXT PRIMARY KEY,
+    quantity INTEGER NOT NULL
+  );
 `);
 
 export { db };
