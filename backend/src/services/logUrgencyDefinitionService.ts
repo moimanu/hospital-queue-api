@@ -18,10 +18,7 @@ export const logUrgencyDefinitionService = {
       throw { status: 400, message: "Patient already passed triage." };
     }
 
-    const now = new Date();
-    const time = now.toTimeString().split(" ")[0]!;
-
-    RecordRepository.updateUrgencyDefinition(patient_id, time, classification);
+    RecordRepository.updateUrgencyDefinition(patient_id, classification);
     syncRealtimeDatabase().catch(console.error);
   }
 };

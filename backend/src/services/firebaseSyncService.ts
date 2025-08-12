@@ -1,5 +1,6 @@
 import admin from "../firebase/firebaseAdmin";
 import { RecordRepository } from "../repositories/recordRepository";
+import { RecordFinishedRepository } from "../repositories/recordFinishedRepository";
 import { LastDaysRepository } from "../repositories/lastDaysRepository";
 import { UrgencyClassification } from "../models/hospitalRecord";
 import { getLocalWeekday } from "../helpers/dateHelper";
@@ -17,15 +18,30 @@ const dbRef = db.ref("stats");
 // Atualiza o nó `current_state`
 async function syncCurrentState() {
   const currentState: Record<string, { count: number; avg_time: number }> = {};
+  const n = 5; // limite de registros para média
 
   for (const level of urgencyLevels) {
     const count = RecordRepository.countByUrgency(level);
-    const avg = RecordRepository.calculateAverageWaitByDefinedUrgency(level);
+
+    let avg = 0;
+    if (level === 'triage') {
+      avg = RecordRepository.calculateAverageTriageWaitFromBothTables(n);
+    } else {
+      avg = RecordFinishedRepository.calculateAverageWaitByClassificationFinished(level, n);
+      console.log("AVG:", avg);
+    }
+
+    // Garantir que avg seja número e não NaN
+    if (isNaN(avg) || avg === null || avg === undefined) {
+      avg = 0;
+    }
+
     currentState[level] = { count, avg_time: avg };
   }
 
   await dbRef.child("current_state").set(currentState);
 }
+
 
 // Atualiza o nó `last_days` usando apenas dados locais
 async function syncLastDays() {

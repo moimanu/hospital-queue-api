@@ -14,12 +14,20 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Formata o tempo médio para string "Xh Ymin" ou "IMEDIATO"
-function formatAvgTime(minutes) {
-  if (minutes === 0) return 'IMEDIATO';
-  const hrs = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return (hrs > 0 ? `${hrs}h ` : '') + (mins > 0 ? `${mins}min` : '');
+// Formata o tempo médio para string "Xh Ymin Zs" ou "IMEDIATO"
+function formatAvgTime(seconds) {
+  if (seconds === 0) return 'IMEDIATO';
+
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  let result = '';
+  if (hrs > 0) result += `${hrs}h `;
+  if (mins > 0) result += `${mins}min `;
+  if (secs > 0) result += `${secs}s`;
+
+  return result.trim();
 }
 
 // Cria o gráfico (variável global para atualizar depois)
@@ -33,8 +41,8 @@ function createChart() {
       labels: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
       datasets: [{
         label: 'Pacientes atendidos',
-        data: [0, 0, 0, 0, 0, 0, 0], // dados iniciais zeros
-        backgroundColor: 'rgba(30, 136, 229, 0.7)', // azul
+        data: [0, 0, 0, 0, 0, 0, 0],
+        backgroundColor: 'rgba(30, 136, 229, 0.7)',
         borderColor: 'rgba(30, 136, 229, 1)',
         borderWidth: 1,
         borderRadius: 5
@@ -91,46 +99,38 @@ function updateQueueData(data) {
     if (!card) continue;
 
     const count = stats.current_state[stateKey]?.count ?? 0;
-    const avgTime = stats.current_state[stateKey]?.avg_time ?? 0;
+    const avgTimeSeconds = stats.current_state[stateKey]?.avg_time ?? 0;
 
-    // Atualiza contagem (lado direito)
+    // Atualiza contagem
     const countEl = card.querySelector('.count-manchester h3');
     if (countEl) countEl.textContent = count;
 
-    // Atualiza média de espera (lado esquerdo, dentro de .caption-time p)
-    const avgTimeEl = card.querySelector('.caption-time p');
-    if (avgTimeEl) avgTimeEl.textContent = `Média de espera: ${formatAvgTime(avgTime)}`;
+    // Atualiza média de espera
+    const avgTimeEl = card.querySelector('.time-caption p');
+    if (avgTimeEl) avgTimeEl.textContent = `Média de espera: ${formatAvgTime(avgTimeSeconds)}`;
   }
 
   // Atualiza gráfico com dados last_days
   if (chart && stats.last_days) {
     const dayMap = {
-      Sunday: 0,    // Domingo
-      Monday: 1,    // Segunda
-      Tuesday: 2,   // Terça
-      Wednesday: 3, // Quarta
-      Thursday: 4,  // Quinta
-      Friday: 5,    // Sexta
-      Saturday: 6   // Sábado
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6
     };
 
-    // Array original de labels em português
     const labelsOriginal = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-
-    // Pega o dia da semana atual (0=Domingo, 6=Sábado)
     const todayIndex = new Date().getDay();
 
-    // Função para rotacionar array para a esquerda em n posições
     function rotateArrayLeft(arr, n) {
       return arr.slice(n).concat(arr.slice(0, n));
     }
 
-    // Rotaciona as labels para que o dia atual fique no final (posição 6)
-    // Para isso rotacionamos à esquerda em (todayIndex + 1) posições
-    // Exemplo: se hoje é Quarta (3), rotaciona 4 posições para esquerda
     const labelsRotated = rotateArrayLeft(labelsOriginal, (todayIndex + 1) % 7);
 
-    // Monta o array de dados na ordem original
     const chartDataOriginal = new Array(7).fill(0);
     for (const [day, value] of Object.entries(stats.last_days)) {
       const index = dayMap[day];
@@ -139,10 +139,8 @@ function updateQueueData(data) {
       }
     }
 
-    // Rotaciona os dados da mesma forma que as labels
     const chartDataRotated = rotateArrayLeft(chartDataOriginal, (todayIndex + 1) % 7);
 
-    // Atualiza os dados e labels do gráfico
     chart.data.labels = labelsRotated;
     chart.data.datasets[0].data = chartDataRotated;
     chart.update();
@@ -158,7 +156,6 @@ onValue(queueRef, (snapshot) => {
   }
 });
 
-// Cria o gráfico ao carregar a página
 window.onload = () => {
   createChart();
 };

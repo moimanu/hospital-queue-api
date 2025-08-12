@@ -1,5 +1,4 @@
 import { RecordRepository } from "../repositories/recordRepository";
-import { getCurrentTime, calculateWaitTime } from "../helpers/time";
 import { syncRealtimeDatabase } from "./firebaseSyncService";
 
 export const logTriageCallService = {
@@ -18,10 +17,7 @@ export const logTriageCallService = {
       throw { status: 400, message: "Patient has already passed through triage." };
     }
 
-    const nowTime = getCurrentTime();
-    const triageWaitTime = calculateWaitTime(record.admission_date, record.arrival_time);
-
-    RecordRepository.updateTriageCall(patient_id, nowTime, triageWaitTime);
+    RecordRepository.updateTriageCall(patient_id);
     syncRealtimeDatabase().catch(console.error);
   }
 };

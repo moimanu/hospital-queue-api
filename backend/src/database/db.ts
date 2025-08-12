@@ -8,7 +8,6 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS Record (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_id TEXT NOT NULL,
-    admission_date TEXT,
     arrival_time TEXT,
     triage_call_time TEXT,
     urgency_definition_time TEXT,
@@ -22,7 +21,6 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS RecordCanceled (
     id INTEGER PRIMARY KEY,
     patient_id TEXT NOT NULL,
-    admission_date TEXT,
     arrival_time TEXT,
     triage_call_time TEXT,
     urgency_definition_time TEXT,
@@ -37,7 +35,6 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS RecordFinished (
     id INTEGER PRIMARY KEY,
     patient_id TEXT NOT NULL,
-    admission_date TEXT NOT NULL,
     arrival_time TEXT NOT NULL,
     triage_call_time TEXT,
     urgency_definition_time TEXT,

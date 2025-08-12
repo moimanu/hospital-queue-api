@@ -1,5 +1,4 @@
 import { RecordRepository } from "../repositories/recordRepository";
-import { getCurrentTime, calculateWaitTime } from "../helpers/time";
 import { syncRealtimeDatabase } from "./firebaseSyncService";
 
 export const logAppointmentCallService = {
@@ -18,13 +17,11 @@ export const logAppointmentCallService = {
       throw { status: 400, message: "Patient is still in triage." };
     }
 
-    const nowTime = getCurrentTime();
     if (!record.urgency_definition_time) {
         throw { status: 400, message: "Urgency definition time is missing for this patient." };
     }
-    const appointmentWaitTime = calculateWaitTime(record.admission_date, record.urgency_definition_time);
 
-    RecordRepository.updateAppointmentCall(patient_id, nowTime, appointmentWaitTime);
+    RecordRepository.updateAppointmentCall(patient_id);
     syncRealtimeDatabase().catch(console.error);
   }
 };

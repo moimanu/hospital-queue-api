@@ -3,10 +3,10 @@ import { HospitalRecord } from "../models/hospitalRecord";
 
 const insertBackupStmt = db.prepare(`
   INSERT INTO RecordCanceled (
-    id, patient_id, admission_date, arrival_time, triage_call_time,
+    id, patient_id, arrival_time, triage_call_time,
     urgency_definition_time, urgency_classification, appointment_call_time,
     triage_wait_time, appointment_wait_time, status, canceled_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
 `);
 
 export const RecordCanceledRepository = {
@@ -14,7 +14,6 @@ export const RecordCanceledRepository = {
     insertBackupStmt.run(
       record.id,
       record.patient_id,
-      record.admission_date,
       record.arrival_time,
       record.triage_call_time,
       record.urgency_definition_time,

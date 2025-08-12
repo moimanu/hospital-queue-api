@@ -23,31 +23,25 @@ export const RecordRepository = {
     this.moveCanceledToBackup(patient_id);
   },
 
-  insert(record: HospitalRecord) {
+  insert(patient_id: string) {
     const insertRecordStmt = db.prepare(`
       INSERT INTO Record (
-        patient_id, admission_date, arrival_time, urgency_classification, status
-      ) VALUES (?, ?, ?, ?, ?)
+        patient_id, arrival_time, urgency_classification, status
+      ) VALUES (?, datetime('now', 'localtime'), 'triage', 'Waiting Triage')
     `);
 
     const insertOrIncrementLastDaysStmt = db.prepare(`
       INSERT INTO LastDays (date, quantity)
-      VALUES (?, 1)
+      VALUES (date('now', 'localtime'), 1)
       ON CONFLICT(date) DO UPDATE SET quantity = quantity + 1
     `);
 
-    const transaction = db.transaction((rec: HospitalRecord) => {
-      insertRecordStmt.run(
-        rec.patient_id,
-        rec.admission_date,
-        rec.arrival_time,
-        "triage",
-        rec.status
-      );
-      insertOrIncrementLastDaysStmt.run(rec.admission_date);
+    const transaction = db.transaction((pid: string) => {
+      insertRecordStmt.run(pid);
+      insertOrIncrementLastDaysStmt.run();
     });
 
-    transaction(record);
+    transaction(patient_id);
   },
 
   findLatestByPatient(patient_id: string): HospitalRecord | undefined {
@@ -59,28 +53,38 @@ export const RecordRepository = {
     return stmt.get(patient_id) as HospitalRecord | undefined;
   },
 
-  updateTriageCall(patient_id: string, triage_time: string, wait_time: string) {
+  updateTriageCall(patient_id: string) {
     db.prepare(`
       UPDATE Record
-      SET triage_call_time = ?, triage_wait_time = ?, status = 'In Triage'
+      SET 
+        triage_call_time = datetime('now', 'localtime'),
+        triage_wait_time = ROUND(
+          (julianday('now', 'localtime') - julianday(arrival_time)) * 24 * 60 * 60
+        ),
+        status = 'In Triage'
       WHERE patient_id = ? AND status = 'Waiting Triage'
-    `).run(triage_time, wait_time, patient_id);
+    `).run(patient_id);
   },
 
-  updateUrgencyDefinition(patient_id: string, time: string, classification: string) {
+  updateUrgencyDefinition(patient_id: string, classification: string) {
     db.prepare(`
       UPDATE Record
-      SET urgency_definition_time = ?, urgency_classification = ?, status = 'Waiting Appointment'
+      SET urgency_definition_time = datetime('now', 'localtime'), urgency_classification = ?, status = 'Waiting Appointment'
       WHERE patient_id = ? AND status = 'In Triage'
-    `).run(time, classification, patient_id);
+    `).run(classification, patient_id);
   },
 
-  updateAppointmentCall(patient_id: string, time: string, wait_time: string) {
+  updateAppointmentCall(patient_id: string) {
     db.prepare(`
       UPDATE Record
-      SET appointment_call_time = ?, appointment_wait_time = ?, status = 'Finished'
+      SET 
+        appointment_call_time = datetime('now', 'localtime'),
+        appointment_wait_time = ROUND(
+          (julianday('now', 'localtime') - julianday(urgency_definition_time)) * 24 * 60 * 60
+        ),
+        status = 'Finished'
       WHERE patient_id = ? AND status = 'Waiting Appointment'
-    `).run(time, wait_time, patient_id);
+    `).run(patient_id);
 
     this.moveFinishedToBackup(patient_id);
   },
@@ -151,14 +155,40 @@ export const RecordRepository = {
     return result?.count ?? 0;
   },
 
-  calculateAverageWaitByDefinedUrgency(urgency: UrgencyClassification): number {
+calculateAverageTriageWaitFromBothTables(n: number): number {
+  const limit = n * 2;
 
-    /* IMPLEMENTAR
-    * 
-    *  O preblema de calcular a média reside no fato de que registros com "triage" 
-    *  só existem em uma tabela (Record), enquanto que os outros níveis estão em outra tabela.
-    */
+  const recordRows = db.prepare(`
+    SELECT triage_wait_time, arrival_time
+    FROM Record
+    WHERE triage_wait_time IS NOT NULL
+    ORDER BY arrival_time DESC
+    LIMIT ?
+  `).all(limit) as { triage_wait_time: number; arrival_time: string }[];
 
-    return 0;
-  },
+  const finishedRows = db.prepare(`
+    SELECT triage_wait_time, arrival_time
+    FROM RecordFinished
+    WHERE triage_wait_time IS NOT NULL
+    ORDER BY arrival_time DESC
+    LIMIT ?
+  `).all(limit) as { triage_wait_time: number; arrival_time: string }[];
+
+  const allRows = [...recordRows, ...finishedRows];
+
+  allRows.sort((a, b) => new Date(b.arrival_time).getTime() - new Date(a.arrival_time).getTime());
+
+  const topN = allRows.slice(0, n);
+  if (topN.length === 0) return 0;
+
+  const total = topN.reduce((sum, r) => {
+    const val = Number(r.triage_wait_time);
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
+
+  const average = total / topN.length;
+  console.log(average); // agora não deve dar NaN
+  return average;
+}
+
 };
