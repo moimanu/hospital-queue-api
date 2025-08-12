@@ -49,17 +49,19 @@ backend/
 │ │ └── db.ts                                  # Conexão com SQLite via better-sqlite3
 │ │
 │ ├── firebase/                                # Integração com Firebase
+│ │ ├── exampleJsonRealtimeDatabase.json       # Exemplo da estrutura atual do Realtime Database
 │ │ ├── firebaseAdmin.ts                       # Configuração do SDK Admin do Firebase
 │ │ └── serviceAccountKey.json                 # Credenciais do Firebase
 │ │
 │ ├── helpers/                                 # Funções utilitárias
-│ │ ├── handleLogAction.ts                     # Lida com diferentes tipos de logs
-│ │ └── time.ts                                # Funções para manipulação de datas e horários
+│ │ ├── dateHelper.ts                          # Funções para manipulação de datas    
+│ │ └── handleLogAction.ts                     # Lida com diferentes tipos de logs
 │ │
 │ ├── models/                                  # Modelos de dados
 │ │ └── hospitalRecord.ts                      # Modelo de registro hospitalar
 │ │
 │ ├── repositories/                            # Camada de acesso a dados
+│ │ ├── lastDaysRepository.ts                  # Contagem de entradas por dia
 │ │ ├── recordCanceledRepository.ts            # Backups de registros em andamento
 │ │ ├── recordFinishedRepository.ts            # Backups de registros finalizados
 │ │ └── recordRepository.ts                    # CRUD principal da tabela de registros
@@ -189,34 +191,32 @@ Registra a chamada do paciente para o atendimento no hospital.
 
 | Requisição                  | Campos Atualizados                                    | Status Atualizado        | Observações                                                                                     |
 |----------------------------|------------------------------------------------------|-------------------------|------------------------------------------------------------------------------------------------|
-| **POST /logs/entry**        | `patient_id`, `admission_date`, `arrival_time`, `urgency_classification = "triage"` | `"Waiting Triage"`      | Cancela registros ativos anteriores do paciente, antes de criar novo, e os move para `RecordCanceled`. |
-| **PUT /logs/triage-call**   | `triage_call_time`, `triage_wait_time`               | `"In Triage"`           | Atualiza tempo de espera baseado em `arrival_time`.                                            |
-| **PUT /logs/urgency-definition** | `urgency_definition_time`, `urgency_classification` | `"Waiting Appointment"` | Recebe a classificação de urgência e atualiza o status.                                       |
-| **PUT /logs/appointment-call** | `appointment_call_time`, `appointment_wait_time`     | `"Finished"`            | Atualiza tempo de espera baseado em `urgency_definition_time` e move para `RecordFinished`. |
-
----
+| **POST/logs/entry**        | `patient_id`, `arrival_time`, `urgency_classification = "triage"` | `"Waiting Triage"`      | Cancela registros ativos anteriores do paciente, antes de criar novo, e os move para `RecordCanceled`. |
+| **PUT/logs/triage-call**   | `triage_call_time`, `triage_wait_time`               | `"In Triage"`           | Atualiza tempo de espera baseado em `arrival_time`.                                            |
+| **PUT/logs/urgency-definition** | `urgency_definition_time`, `urgency_classification` | `"Waiting Appointment"` | Recebe a classificação de urgência e atualiza o status.                                       |
+| **PUT/logs/appointment-call** | `appointment_call_time`, `appointment_wait_time`     | `"Finished"`            | Atualiza tempo de espera baseado em `urgency_definition_time` e move para `RecordFinished`. |
 
 ## Exemplo de Registro e Evolução nas Requisições
 
-| Etapa / Campo               | id | patient_id | admission_date | arrival_time | triage_call_time | urgency_definition_time | urgency_classification | appointment_call_time | triage_wait_time | appointment_wait_time | status             |
-|----------------------------|----|------------|----------------|--------------|------------------|------------------------|-----------------------|----------------------|------------------|----------------------|--------------------|
-| POST/logs/entry           | 1  | 12345      | 2025-08-10     | 08:00:00     | —                | —                      | triage                | —                    | —                | —                    | Waiting Triage      |
-| PUT/logs/triage-call      | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | —                      | triage                | —                    | 00:15:00         | —                    | In Triage           |
-| PUT/logs/urgency-definition | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | 08:30:00               | orange                | —                    | 00:15:00         | —                    | Waiting Appointment |
-| PUT/logs/appointment-call | 1  | 12345      | 2025-08-10     | 08:00:00     | 08:15:00         | 08:30:00               | orange                | 08:50:00             | 00:15:00         | 00:20:00             | Finished            |
+| Etapa / Campo                 | id | patient_id | arrival_time         | triage_call_time      | urgency_definition_time | urgency_classification | appointment_call_time   | triage_wait_time | appointment_wait_time | status                  |
+|------------------------------|----|------------|-----------------------|------------------------|--------------------------|------------------------|--------------------------|------------------|------------------------|--------------------------|
+| POST /logs/entry             | 1  | 12345      | 2025-08-12 08:00:00   | —                      | —                        | triage                 | —                        | —                | —                      | Waiting Triage       |
+| PUT /logs/triage-call        | 1  | 12345      | 2025-08-12 08:00:00   | 2025-08-12 08:15:00    | —                        | triage                 | —                        | 900              | —                      | In Triage               |
+| PUT /logs/urgency-definition | 1  | 12345      | 2025-08-12 08:00:00   | 2025-08-12 08:15:00    | 2025-08-12 08:30:00      | orange                | —                        | 900              | —                      | Waiting Appointment   |
+| PUT /logs/appointment-call   | 1  | 12345      | 2025-08-12 08:00:00   | 2025-08-12 08:15:00    | 2025-08-12 08:30:00      | orange                | 2025-08-12 08:50:00      | 900              | 1200                   | Finished               |
+
+> - Os campos `triage_wait_time` e `appointment_wait_time` representam tempo de espera em segundos.
+
+### Explicação do Exemplo
+
+- **POST /logs/entry:** Paciente "12345" chega no hospital às 08:00. O registro é criado com o status **"Waiting Triage"**.
+- **PUT /logs/triage-call:** Paciente chamado para triagem às 08:15. O tempo de espera para triagem é registrado como 15 minutos (900 segundos). O status é atualizado para **"In Triage"**.
+- **PUT /logs/urgency-definition:** Triagem finalizada e urgência definida como **"orange"** às 08:30. O status é alterado para **"Waiting Appointment"**.
+- **PUT /logs/appointment-call:** Paciente chamado para atendimento às 08:50. O tempo de espera para atendimento é registrado como 20 minutos (1200 segundos). O status é atualizado para **"Finished"** e o registro é movido para backup.
 
 ---
 
-### Explicação do exemplo
-
-- **POST/logs/entry:** paciente "12345" chega no hospital às 08:00, registro criado com status "Waiting Triage".  
-- **PUT/logs/triage-call:** paciente chamado para triagem às 08:15, tempo de espera para triagem registrado (15 minutos), status vira "In Triage".  
-- **PUT/logs/urgency-definition:** triagem finalizada e urgência definida como "orange" às 08:30, status vira "Waiting Appointment".  
-- **PUT/logs/appointment-call:** paciente chamado para atendimento às 08:50, tempo de espera para atendimento registrado (20 minutos), status vira "Finished" e registro é movido para backup.
-
----
-
-## Banco de dados
+## Banco de Dados
 
 ### Tabela: `Record`
 
@@ -224,44 +224,56 @@ Registra a chamada do paciente para o atendimento no hospital.
 |---------------------------|-----------------------------------------------------------------|
 | `id`                      | INTEGER PRIMARY KEY AUTOINCREMENT                               |
 | `patient_id`              | TEXT NOT NULL                                                   |
-| `admission_date`          | TEXT (data no formato ISO)                                      |
-| `arrival_time`            | TEXT (hora no formato HH:MM:SS)                                |
-| `triage_call_time`        | TEXT (hora no formato HH:MM:SS)                                |
-| `urgency_definition_time` | TEXT (hora no formato HH:MM:SS)                                |
-| `urgency_classification`  | TEXT (ex: "triage", "red", "orange", "yellow", "green", "blue")|
-| `appointment_call_time`   | TEXT (hora no formato HH:MM:SS)                                |
-| `triage_wait_time`        | TEXT (duração, ex: "00:15:00")                                 |
-| `appointment_wait_time`   | TEXT (duração, ex: "00:20:00")                                 |
+| `arrival_time`            | TEXT (hora no formato HH:MM:SS)                                 |
+| `triage_call_time`        | TEXT (hora no formato HH:MM:SS)                                 |
+| `urgency_definition_time` | TEXT (hora no formato HH:MM:SS)                                 |
+| `urgency_classification`  | TEXT (ex: "triage", "red", "orange", "yellow", "green", "blue") |
+| `appointment_call_time`   | TEXT (hora no formato HH:MM:SS)                                 |
+| `triage_wait_time`        | INTEGER (duração em segundos)                                   |
+| `appointment_wait_time`   | INTEGER (duração em segundos)                                   |
 | `status`                  | TEXT (ex: "Waiting Triage", "In Triage", "Waiting Appointment", "Finished", "Canceled") |
 
 ---
 
-### Tabela: `recordCanceled`
+### Tabela: `RecordCanceled`
 
-Mesmos campos da tabela `Record` com adição de:
+Mesmos campos da tabela `Record`, com a adição de:
 
 | Campo         | Tipo                                                               |
 |---------------|--------------------------------------------------------------------|
-| `canceled_at` | TEXT (timestamp do momento do cancelamento, padrão datetime('now'))|
+| `canceled_at` | TEXT (timestamp do momento do cancelamento, padrão `datetime('now')`) |
 
 ---
 
-### Tabela: `recordFinished`
+### Tabela: `RecordFinished`
 
-Mesmos campos da tabela `Record` com adição de:
+Mesmos campos da tabela `Record`, com a adição de:
 
 | Campo        | Tipo                                                               |
 |--------------|--------------------------------------------------------------------|
-| `finished_at`| TEXT (timestamp do momento da finalização, padrão datetime('now')) |
+| `finished_at`| TEXT (timestamp do momento da finalização, padrão `datetime('now')`) |
+
+---
+
+### Tabela: `LastDays`
+
+| Campo         | Tipo                                                              |
+|---------------|-------------------------------------------------------------------|
+| `date`        | TEXT (data no formato ISO, ex: `YYYY-MM-DD`)                      |
+| `quantity`    | INTEGER (quantidade de registros para o dia especificado)         |
+
+> **Objetivo da Tabela `LastDays`:**  
+> A tabela `LastDays` armazena a quantidade de registros de pacientes para cada dia. Essa tabela pode ser utilizada para fins de contagem diária ou para acompanhar a quantidade de registros inseridos em um período.
 
 ---
 
 ### Observações gerais
 
-- O banco utiliza SQLite com a biblioteca `better-sqlite3`.  
+- O banco de dados utiliza SQLite com a biblioteca `better-sqlite3`.  
 - Registros ativos ficam na tabela `Record`.  
-- Registros cancelados são movidos para `RecordBackup`.  
-- Registros finalizados são movidos para `RecordFinishedBackup`.
+- Registros cancelados são movidos para `RecordCanceled`.  
+- Registros finalizados são movidos para `RecordFinished`.  
+- O campo `triage_wait_time` e `appointment_wait_time` armazenam a duração em segundos (em formato INTEGER).
 
 ---
 
