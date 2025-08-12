@@ -16,7 +16,7 @@ const database = getDatabase(app);
 
 // Formata o tempo médio para string "Xh Ymin Zs" ou "IMEDIATO"
 function formatAvgTime(seconds) {
-  if (seconds === 0) return 'IMEDIATO';
+  if (seconds === 0) return '...';
 
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -106,8 +106,10 @@ function updateQueueData(data) {
     if (countEl) countEl.textContent = count;
 
     // Atualiza média de espera
-    const avgTimeEl = card.querySelector('.time-caption p');
-    if (avgTimeEl) avgTimeEl.textContent = `Média de espera: ${formatAvgTime(avgTimeSeconds)}`;
+    if (stateKey !== 'red') {
+      const avgTimeEl = card.querySelector('.time-caption p');
+      if (avgTimeEl) avgTimeEl.textContent = `Média de espera: ${formatAvgTime(avgTimeSeconds)}`;
+    }
   }
 
   // Atualiza gráfico com dados last_days
