@@ -155,40 +155,38 @@ export const RecordRepository = {
     return result?.count ?? 0;
   },
 
-calculateAverageTriageWaitFromBothTables(n: number): number {
-  const limit = n * 2;
+  calculateAverageTriageWaitFromBothTables(n: number): number {
+    const limit = n * 2;
 
-  const recordRows = db.prepare(`
-    SELECT triage_wait_time, arrival_time
-    FROM Record
-    WHERE triage_wait_time IS NOT NULL
-    ORDER BY arrival_time DESC
-    LIMIT ?
-  `).all(limit) as { triage_wait_time: number; arrival_time: string }[];
+    const recordRows = db.prepare(`
+      SELECT triage_wait_time, arrival_time
+      FROM Record
+      WHERE triage_wait_time IS NOT NULL
+      ORDER BY arrival_time DESC
+      LIMIT ?
+    `).all(limit) as { triage_wait_time: number; arrival_time: string }[];
 
-  const finishedRows = db.prepare(`
-    SELECT triage_wait_time, arrival_time
-    FROM RecordFinished
-    WHERE triage_wait_time IS NOT NULL
-    ORDER BY arrival_time DESC
-    LIMIT ?
-  `).all(limit) as { triage_wait_time: number; arrival_time: string }[];
+    const finishedRows = db.prepare(`
+      SELECT triage_wait_time, arrival_time
+      FROM RecordFinished
+      WHERE triage_wait_time IS NOT NULL
+      ORDER BY arrival_time DESC
+      LIMIT ?
+    `).all(limit) as { triage_wait_time: number; arrival_time: string }[];
 
-  const allRows = [...recordRows, ...finishedRows];
+    const allRows = [...recordRows, ...finishedRows];
 
-  allRows.sort((a, b) => new Date(b.arrival_time).getTime() - new Date(a.arrival_time).getTime());
+    allRows.sort((a, b) => new Date(b.arrival_time).getTime() - new Date(a.arrival_time).getTime());
 
-  const topN = allRows.slice(0, n);
-  if (topN.length === 0) return 0;
+    const topN = allRows.slice(0, n);
+    if (topN.length === 0) return 0;
 
-  const total = topN.reduce((sum, r) => {
-    const val = Number(r.triage_wait_time);
-    return sum + (isNaN(val) ? 0 : val);
-  }, 0);
+    const total = topN.reduce((sum, r) => {
+      const val = Number(r.triage_wait_time);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
 
-  const average = total / topN.length;
-  console.log(average); // agora não deve dar NaN
-  return average;
-}
-
+    const average = total / topN.length;
+    return average;
+  }
 };

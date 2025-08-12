@@ -28,7 +28,6 @@ async function syncCurrentState() {
       avg = RecordRepository.calculateAverageTriageWaitFromBothTables(n);
     } else {
       avg = RecordFinishedRepository.calculateAverageWaitByClassificationFinished(level, n);
-      console.log("AVG:", avg);
     }
 
     // Garantir que avg seja número e não NaN
