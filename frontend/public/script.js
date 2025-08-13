@@ -18,6 +18,9 @@ const database = getDatabase(app);
 function formatAvgTime(seconds) {
   if (seconds === 0) return '...';
 
+  // Garante que segundos sejam um número inteiro
+  seconds = Math.round(seconds);
+
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
