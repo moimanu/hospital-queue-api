@@ -34,25 +34,23 @@ function generateInsertStatements() {
     const urgencies = ['red', 'orange', 'yellow', 'green', 'blue'];
     const urgency = urgencies[Math.floor(Math.random() * urgencies.length)];
 
-    // Inicializando appointmentDelayInMinutes com um valor padrão (0)
     let appointmentDelayInMinutes: number = 0;
 
-    // Determinar o intervalo baseado na urgência
     switch (urgency) {
       case 'red':
-        appointmentDelayInMinutes = 0; // 0 minutos para 'red'
+        appointmentDelayInMinutes = 0;
         break;
       case 'orange':
-        appointmentDelayInMinutes = Math.floor(Math.random() * 6) + 10; // 10-15
+        appointmentDelayInMinutes = Math.floor(Math.random() * 6) + 10;
         break;
       case 'yellow':
-        appointmentDelayInMinutes = Math.floor(Math.random() * 16) + 25; // 25-40
+        appointmentDelayInMinutes = Math.floor(Math.random() * 16) + 25;
         break;
       case 'green':
-        appointmentDelayInMinutes = Math.floor(Math.random() * 21) + 40; // 40-60
+        appointmentDelayInMinutes = Math.floor(Math.random() * 21) + 40;
         break;
       case 'blue':
-        appointmentDelayInMinutes = Math.floor(Math.random() * 61) + 60; // 60-120
+        appointmentDelayInMinutes = Math.floor(Math.random() * 61) + 60;
         break;
     }
 
@@ -63,13 +61,16 @@ function generateInsertStatements() {
 
     const status = 'finished';
 
+    // Gerando o id negativo manualmente
+    const id = -(i + 1);  // Gerar IDs negativos como -1, -2, ...
+
     const insertStatement = `
       INSERT INTO RecordFinished (
-        patient_id, arrival_time, triage_call_time, urgency_definition_time,
+        id, patient_id, arrival_time, triage_call_time, urgency_definition_time,
         urgency_classification, appointment_call_time,
         triage_wait_time, appointment_wait_time, status
       ) VALUES (
-        'patient_${i + 1}',
+        ${id}, 'patient_${i + 1}',
         '${formatDate(arrivalTime)}',
         '${formatDate(triageCallTime)}',
         '${formatDate(urgencyDefinitionTime)}',
