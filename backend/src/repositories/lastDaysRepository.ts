@@ -19,7 +19,7 @@ export const LastDaysRepository = {
     const stmt = db.prepare(`
       SELECT date, quantity
       FROM LastDays
-      WHERE date >= date('now', '-6 days')
+      WHERE date >= date('now', 'localtime', '-6 days')
       ORDER BY date ASC
     `);
     return stmt.all() as LastDaysEntry[];
