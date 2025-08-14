@@ -97,11 +97,11 @@ export function initializeDatabase() {
 
   if (rowCount.count === 0) {
     const insertStatements = generateInsertStatements();
-    console.log("Inserindo 100 registros...");
+    console.log("\n📊 Inserindo 100 registros...");
     db.exec(insertStatements);
     populateLastDays();
   } else {
-    console.log("A tabela já contém registros. Nenhuma inserção necessária.");
+    console.log("\n👍 A tabela já contém registros. Nenhuma inserção necessária.");
   }
 }
 
@@ -118,5 +118,5 @@ function populateLastDays() {
   `;
 
   db.exec(query);
-  console.log('Tabela LastDays foi preenchida com a quantidade de registros por data.');
+  console.log('\n📅 Tabela LastDays foi preenchida com a quantidade de registros por data.');
 }
