@@ -31,6 +31,14 @@ export const RecordRepository = {
     `).run(patient_id);
   },
 
+  insertWithoutData(patient_id: string) { 
+    db.prepare(`
+      INSERT INTO Record (
+        patient_id
+      ) VALUES (?)
+    `).run(patient_id);
+  },
+
   findLatestByPatient(patient_id: string): HospitalRecord | undefined {
     const stmt = db.prepare(`
       SELECT * FROM Record
@@ -48,8 +56,9 @@ export const RecordRepository = {
         triage_wait_time = ROUND(
           (julianday('now', 'localtime') - julianday(arrival_time)) * 24 * 60 * 60
         ),
+        urgency_classification = 'triage',
         status = 'In Triage'
-      WHERE patient_id = ? AND status = 'Waiting Triage'
+      WHERE patient_id = ? AND triage_call_time IS NULL
     `).run(patient_id);
   },
 
@@ -57,7 +66,7 @@ export const RecordRepository = {
     db.prepare(`
       UPDATE Record
       SET urgency_definition_time = datetime('now', 'localtime'), urgency_classification = ?, status = 'Waiting Appointment'
-      WHERE patient_id = ? AND status = 'In Triage'
+      WHERE patient_id = ? AND urgency_definition_time IS NULL
     `).run(classification, patient_id);
   },
 
@@ -70,7 +79,7 @@ export const RecordRepository = {
           (julianday('now', 'localtime') - julianday(urgency_definition_time)) * 24 * 60 * 60
         ),
         status = 'Finished'
-      WHERE patient_id = ? AND status = 'Waiting Appointment'
+      WHERE patient_id = ? AND appointment_call_time IS NULL
     `).run(patient_id);
 
     moveFinishedToBackup(patient_id);

@@ -6,22 +6,13 @@ export const logAppointmentCallService = {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
     if (!record) {
-      throw { status: 404, message: "Patient not found." };
-    }
+      RecordRepository.insertWithoutData(patient_id);
+      RecordRepository.updateAppointmentCall(patient_id);
 
-    if (record.status === "Waiting Triage") {
-      throw { status: 400, message: "Patient has not been called for triage yet." };
+    } else {
+      RecordRepository.updateAppointmentCall(patient_id);
     }
-
-    if (record.status === "In Triage") {
-      throw { status: 400, message: "Patient is still in triage." };
-    }
-
-    if (!record.urgency_definition_time) {
-        throw { status: 400, message: "Urgency definition time is missing for this patient." };
-    }
-
-    RecordRepository.updateAppointmentCall(patient_id);
+    
     syncRealtimeDatabase().catch(console.error);
   }
 };

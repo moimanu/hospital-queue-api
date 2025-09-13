@@ -6,18 +6,13 @@ export const logTriageCallService = {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
     if (!record) {
-      throw { status: 404, message: "Patient not found." };
+      RecordRepository.insertWithoutData(patient_id);
+      RecordRepository.updateTriageCall(patient_id);
+
+    } else {
+      RecordRepository.updateTriageCall(patient_id);
     }
 
-    if (record.status === "In Triage") {
-      throw { status: 400, message: "Patient has already been called for triage." };
-    }
-
-    if (record.status === "Waiting Appointment") {
-      throw { status: 400, message: "Patient has already passed through triage." };
-    }
-
-    RecordRepository.updateTriageCall(patient_id);
     syncRealtimeDatabase().catch(console.error);
   }
 };

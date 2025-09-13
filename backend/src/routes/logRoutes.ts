@@ -46,10 +46,6 @@ logRoutes.post("/entry", logController.entry);
  *     responses:
  *       200:
  *         description: Triage called successfully
- *       400:
- *         description: Patient already called or passed triage
- *       404:
- *         description: Patient not found
  *       500:
  *         description: Internal server error
  */
@@ -76,10 +72,6 @@ logRoutes.put("/triage-call", logController.triageCall);
  *     responses:
  *       200:
  *         description: Urgency defined successfully
- *       400:
- *         description: Invalid status transition
- *       404:
- *         description: Patient not found
  *       500:
  *         description: Internal server error
  */
@@ -103,10 +95,6 @@ logRoutes.put("/urgency-definition", logController.urgencyDefinition);
  *     responses:
  *       200:
  *         description: Appointment call registered successfully
- *       400:
- *         description: Invalid patient status
- *       404:
- *         description: Patient not found
  *       500:
  *         description: Internal server error
  */

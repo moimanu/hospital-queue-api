@@ -35,7 +35,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS RecordFinished (
     id INTEGER PRIMARY KEY,
     patient_id TEXT NOT NULL,
-    arrival_time TEXT NOT NULL,
+    arrival_time TEXT,
     triage_call_time TEXT,
     urgency_definition_time TEXT,
     urgency_classification TEXT,

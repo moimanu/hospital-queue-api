@@ -7,18 +7,13 @@ export const logUrgencyDefinitionService = {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
     if (!record) {
-      throw { status: 404, message: "Patient not found." };
+      RecordRepository.insertWithoutData(patient_id);
+      RecordRepository.updateUrgencyDefinition(patient_id, classification);
+
+    } else {
+      RecordRepository.updateUrgencyDefinition(patient_id, classification);
     }
 
-    if (record.status === "Waiting Triage") {
-      throw { status: 400, message: "Patient is still waiting for triage." };
-    }
-
-    if (record.status === "Waiting Appointment") {
-      throw { status: 400, message: "Patient already passed triage." };
-    }
-
-    RecordRepository.updateUrgencyDefinition(patient_id, classification);
     syncRealtimeDatabase().catch(console.error);
   }
 };
