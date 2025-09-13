@@ -20,28 +20,15 @@ export const RecordRepository = {
       WHERE patient_id = ? AND status IN ('Waiting Triage', 'In Triage', 'Waiting Appointment')
     `).run(patient_id);
 
-    this.moveCanceledToBackup(patient_id);
+    moveCanceledToBackup(patient_id);
   },
 
-  insert(patient_id: string) {
-    const insertRecordStmt = db.prepare(`
+  insertPatient(patient_id: string) {
+    db.prepare(`
       INSERT INTO Record (
         patient_id, arrival_time, urgency_classification, status
       ) VALUES (?, datetime('now', 'localtime'), 'triage', 'Waiting Triage')
-    `);
-
-    const insertOrIncrementLastDaysStmt = db.prepare(`
-      INSERT INTO LastDays (date, quantity)
-      VALUES (date('now', 'localtime'), 1)
-      ON CONFLICT(date) DO UPDATE SET quantity = quantity + 1
-    `);
-
-    const transaction = db.transaction((pid: string) => {
-      insertRecordStmt.run(pid);
-      insertOrIncrementLastDaysStmt.run();
-    });
-
-    transaction(patient_id);
+    `).run(patient_id);
   },
 
   findLatestByPatient(patient_id: string): HospitalRecord | undefined {
@@ -86,49 +73,7 @@ export const RecordRepository = {
       WHERE patient_id = ? AND status = 'Waiting Appointment'
     `).run(patient_id);
 
-    this.moveFinishedToBackup(patient_id);
-  },
-
-  moveCanceledToBackup(patient_id: string) {
-    const canceledRecords = db.prepare(`
-      SELECT * FROM Record
-      WHERE patient_id = ? AND status = 'Canceled'
-    `).all(patient_id) as HospitalRecord[];
-
-    const deleteCanceled = db.prepare(`
-      DELETE FROM Record
-      WHERE id = ?
-    `);
-
-    const transaction = db.transaction(() => {
-      for (const rec of canceledRecords) {
-        RecordCanceledRepository.insertCanceledRecord(rec);
-        deleteCanceled.run(rec.id);
-      }
-    });
-
-    transaction();
-  },
-
-  moveFinishedToBackup(patient_id: string) {
-    const finishedRecords = db.prepare(`
-      SELECT * FROM Record
-      WHERE patient_id = ? AND status = 'Finished'
-    `).all(patient_id) as HospitalRecord[];
-
-    const deleteFinished = db.prepare(`
-      DELETE FROM Record
-      WHERE id = ?
-    `);
-
-    const transaction = db.transaction(() => {
-      for (const rec of finishedRecords) {
-        RecordFinishedRepository.insertFinishedRecord(rec);
-        deleteFinished.run(rec.id);
-      }
-    });
-
-    transaction();
+    moveFinishedToBackup(patient_id);
   },
 
   countAll(): number {
@@ -190,3 +135,39 @@ export const RecordRepository = {
     return average;
   }
 };
+
+function moveCanceledToBackup(patient_id: string) {
+  const canceledRecords = db.prepare(`
+    SELECT * FROM Record
+    WHERE patient_id = ? AND status = 'Canceled'
+  `).all(patient_id) as HospitalRecord[];
+
+  const deleteCanceled = db.prepare(`DELETE FROM Record WHERE id = ?`);
+
+  const transaction = db.transaction(() => {
+    for (const rec of canceledRecords) {
+      RecordCanceledRepository.insertCanceledRecord(rec);
+      deleteCanceled.run(rec.id);
+    }
+  });
+
+  transaction();
+}
+
+function moveFinishedToBackup(patient_id: string) {
+  const finishedRecords = db.prepare(`
+    SELECT * FROM Record
+    WHERE patient_id = ? AND status = 'Finished'
+  `).all(patient_id) as HospitalRecord[];
+
+  const deleteFinished = db.prepare(`DELETE FROM Record WHERE id = ?`);
+
+  const transaction = db.transaction(() => {
+    for (const rec of finishedRecords) {
+      RecordFinishedRepository.insertFinishedRecord(rec);
+      deleteFinished.run(rec.id);
+    }
+  });
+
+  transaction();
+}
