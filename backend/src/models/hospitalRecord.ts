@@ -11,7 +11,6 @@ export type RecordStatus =
   | "In Triage"
   | "Waiting Appointment"
   | "Finished"
-  | "Canceled";
 
 export interface HospitalRecord {
   id?: number;

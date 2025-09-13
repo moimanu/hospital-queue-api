@@ -1,7 +1,7 @@
 import { db } from "../database/db";
 import { HospitalRecord } from "../models/hospitalRecord";
 import { UrgencyClassification } from "../models/hospitalRecord";
-import { RecordCanceledRepository } from './recordCanceledRepository';
+import { BrokenRecordRepository } from './brokenRecordRepository';
 import { RecordFinishedRepository } from './recordFinishedRepository';
 
 export const RecordRepository = {
@@ -12,15 +12,6 @@ export const RecordRepository = {
       WHERE patient_id = ? AND status IN ('Waiting Triage', 'In Triage', 'Waiting Appointment')
     `);
     return stmt.all(patient_id) as HospitalRecord[];
-  },
-
-  cancelByPatient(patient_id: string) {
-    db.prepare(`
-      UPDATE Record SET status = 'Canceled'
-      WHERE patient_id = ? AND status IN ('Waiting Triage', 'In Triage', 'Waiting Appointment')
-    `).run(patient_id);
-
-    moveCanceledToBackup(patient_id);
   },
 
   insertPatient(patient_id: string) {
@@ -142,21 +133,29 @@ export const RecordRepository = {
 
     const average = total / topN.length;
     return average;
+  },
+
+  cancelRecordByNew(patient_id: string) {
+    moveBrokedToBackup(patient_id, "Canceled by new record");
+  },
+
+  cancelRecordByTimeout(patient_id: string) {
+    moveBrokedToBackup(patient_id, "Canceled by timeout");
   }
 };
 
-function moveCanceledToBackup(patient_id: string) {
-  const canceledRecords = db.prepare(`
+function moveBrokedToBackup(patient_id: string, reason: string) {
+  const brokedRecords = db.prepare(`
     SELECT * FROM Record
-    WHERE patient_id = ? AND status = 'Canceled'
+    WHERE patient_id = ?
   `).all(patient_id) as HospitalRecord[];
 
-  const deleteCanceled = db.prepare(`DELETE FROM Record WHERE id = ?`);
+  const deleteBroked = db.prepare(`DELETE FROM Record WHERE id = ?`);
 
   const transaction = db.transaction(() => {
-    for (const rec of canceledRecords) {
-      RecordCanceledRepository.insertCanceledRecord(rec);
-      deleteCanceled.run(rec.id);
+    for (const rec of brokedRecords) {
+      BrokenRecordRepository.insertBrokedRecord(rec, reason);
+      deleteBroked.run(rec.id);
     }
   });
 

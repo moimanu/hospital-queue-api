@@ -46,6 +46,8 @@ logRoutes.post("/entry", logController.entry);
  *     responses:
  *       200:
  *         description: Triage called successfully
+ *       400:
+ *         description: Missing patient_id
  *       500:
  *         description: Internal server error
  */
@@ -72,6 +74,8 @@ logRoutes.put("/triage-call", logController.triageCall);
  *     responses:
  *       200:
  *         description: Urgency defined successfully
+ *       400:
+ *         description: Missing patient_id or urgency_classification
  *       500:
  *         description: Internal server error
  */
@@ -95,6 +99,8 @@ logRoutes.put("/urgency-definition", logController.urgencyDefinition);
  *     responses:
  *       200:
  *         description: Appointment call registered successfully
+ *       400:
+ *         description: Missing patient_id
  *       500:
  *         description: Internal server error
  */

@@ -62,7 +62,7 @@ backend/
 │ │
 │ ├── repositories/                            # Camada de acesso a dados
 │ │ ├── lastDaysRepository.ts                  # Contagem de entradas por dia
-│ │ ├── recordCanceledRepository.ts            # Backups de registros em andamento
+│ │ ├── brokenRecordRepository.ts              # Backups de registros quebrados
 │ │ ├── recordFinishedRepository.ts            # Backups de registros finalizados
 │ │ └── recordRepository.ts                    # CRUD principal da tabela de registros
 │ │
@@ -149,9 +149,7 @@ Registra a chamada do paciente para a triagem no hospital.
 `patient_id` (String)
 
 **Condições:**  
-- Se o paciente não for encontrado, retorna erro 404 ("Patient not found.").  
-- Se o paciente já tiver sido chamado para a triagem, retorna erro 400 ("Patient has already been called for triage.").  
-- Se o paciente já tiver passado pela triagem, retorna erro 400 ("Patient has already passed through triage.").
+- Se o paciente não for encontrado, cria-se um novo registro, sem dados, e o atualiza com os dados do log em questão.  
 
 ---
 
@@ -165,9 +163,7 @@ Registra a definição da classificação de urgência de um paciente.
 `urgency_classification` (String)
 
 **Condições:**  
-- Se o paciente não for encontrado, retorna erro 404 ("Patient not found.").  
-- Se o paciente ainda estiver aguardando a triagem, retorna erro 400 ("Patient is still waiting for triage.").  
-- Se o paciente já tiver passado pela triagem, retorna erro 400 ("Patient already passed triage.").
+- Se o paciente não for encontrado, cria-se um novo registro, sem dados, e o atualiza com os dados do log em questão.  
 
 ---
 
@@ -180,10 +176,7 @@ Registra a chamada do paciente para o atendimento no hospital.
 `patient_id` (String)
 
 **Condições:**  
-- Se o paciente não for encontrado, retorna erro 404 ("Patient not found.").  
-- Se o paciente ainda não tiver sido chamado para triagem, retorna erro 400 ("Patient has not been called for triage yet.").  
-- Se o paciente ainda estiver em triagem, retorna erro 400 ("Patient is still in triage.").  
-- Se o horário de definição de urgência estiver ausente, retorna erro 400 ("Urgency definition time is missing for this patient.").
+- Se o paciente não for encontrado, cria-se um novo registro, sem dados, e o atualiza com os dados do log em questão.  
 
 ---
 
@@ -191,7 +184,7 @@ Registra a chamada do paciente para o atendimento no hospital.
 
 | Requisição                  | Campos Atualizados                                    | Status Atualizado        | Observações                                                                                     |
 |----------------------------|------------------------------------------------------|-------------------------|------------------------------------------------------------------------------------------------|
-| **POST/logs/entry**        | `patient_id`, `arrival_time`, `urgency_classification = "triage"` | `"Waiting Triage"`      | Cancela registros ativos anteriores do paciente, antes de criar novo, e os move para `RecordCanceled`. |
+| **POST/logs/entry**        | `patient_id`, `arrival_time`, `urgency_classification = "triage"` | `"Waiting Triage"`      | Cancela registros ativos anteriores do paciente, antes de criar novo, e os move para `BrokenRecord`. |
 | **PUT/logs/triage-call**   | `triage_call_time`, `triage_wait_time`               | `"In Triage"`           | Atualiza tempo de espera baseado em `arrival_time`.                                            |
 | **PUT/logs/urgency-definition** | `urgency_definition_time`, `urgency_classification` | `"Waiting Appointment"` | Recebe a classificação de urgência e atualiza o status.                                       |
 | **PUT/logs/appointment-call** | `appointment_call_time`, `appointment_wait_time`     | `"Finished"`            | Atualiza tempo de espera baseado em `urgency_definition_time` e move para `RecordFinished`. |
@@ -231,18 +224,18 @@ Registra a chamada do paciente para o atendimento no hospital.
 | `appointment_call_time`   | TEXT (hora no formato HH:MM:SS)                                 |
 | `triage_wait_time`        | INTEGER (duração em segundos)                                   |
 | `appointment_wait_time`   | INTEGER (duração em segundos)                                   |
-| `status`                  | TEXT (ex: "Waiting Triage", "In Triage", "Waiting Appointment", "Finished", "Canceled") |
+| `status`                  | TEXT (ex: "Waiting Triage", "In Triage", "Waiting Appointment", "Finished") |
 
 ---
 
-### Tabela: `RecordCanceled`
+### Tabela: `BrokenRecord`
 
 Mesmos campos da tabela `Record`, com a adição de:
 
 | Campo         | Tipo                                                               |
 |---------------|--------------------------------------------------------------------|
-| `canceled_at` | TEXT (timestamp do momento do cancelamento, padrão `datetime('now')`) |
-
+| `broked_at`   | TEXT (timestamp do momento do envio para a tabela, padrão `datetime('now')`) |
+| `reason` | TEXT (motivo pelo qual foi adicionado à tabela de registros quebrados)
 ---
 
 ### Tabela: `RecordFinished`
@@ -251,7 +244,7 @@ Mesmos campos da tabela `Record`, com a adição de:
 
 | Campo        | Tipo                                                               |
 |--------------|--------------------------------------------------------------------|
-| `finished_at`| TEXT (timestamp do momento da finalização, padrão `datetime('now')`) |
+| `finished_at` | TEXT (timestamp do momento da finalização, padrão `datetime('now')`) |
 
 ---
 
@@ -271,7 +264,7 @@ Mesmos campos da tabela `Record`, com a adição de:
 
 - O banco de dados utiliza SQLite com a biblioteca `better-sqlite3`.  
 - Registros ativos ficam na tabela `Record`.  
-- Registros cancelados são movidos para `RecordCanceled`.  
+- Registros quebrados são movidos para `BrokenRecord`.  
 - Registros finalizados são movidos para `RecordFinished`.  
 - O campo `triage_wait_time` e `appointment_wait_time` armazenam a duração em segundos (em formato INTEGER).
 

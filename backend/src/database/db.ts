@@ -18,7 +18,7 @@ db.exec(`
     status TEXT
   );
 
-  CREATE TABLE IF NOT EXISTS RecordCanceled (
+  CREATE TABLE IF NOT EXISTS BrokenRecord (
     id INTEGER PRIMARY KEY,
     patient_id TEXT NOT NULL,
     arrival_time TEXT,
@@ -29,7 +29,8 @@ db.exec(`
     triage_wait_time TEXT,
     appointment_wait_time TEXT,
     status TEXT,
-    canceled_at TEXT DEFAULT (datetime('now'))
+    broked_at TEXT DEFAULT (datetime('now')),
+    reason TEXT
   );
 
   CREATE TABLE IF NOT EXISTS RecordFinished (
