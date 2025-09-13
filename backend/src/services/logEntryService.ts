@@ -9,7 +9,7 @@ export const logEntryService = {
     const transaction = db.transaction((pid: string) => {
       RecordRepository.cancelByPatient(pid);
       RecordRepository.insertPatient(pid);
-      LastDaysRepository.insertOrIncrement(pid);
+      LastDaysRepository.insertOrIncrement();
     });
 
     transaction(patient_id);

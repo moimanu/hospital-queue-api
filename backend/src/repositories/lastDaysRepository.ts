@@ -6,12 +6,12 @@ export type LastDaysEntry = {
 };
 
 export const LastDaysRepository = {
-  insertOrIncrement(patient_id: string) {
+  insertOrIncrement() {
     db.prepare(`
       INSERT INTO LastDays (date, quantity)
       VALUES (date('now', 'localtime'), 1)
       ON CONFLICT(date) DO UPDATE SET quantity = quantity + 1
-    `).run(patient_id);
+    `);
   },
 
   getLastSevenDays(): LastDaysEntry[] {
