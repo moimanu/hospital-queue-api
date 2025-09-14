@@ -11,7 +11,7 @@ export const LastDaysRepository = {
       INSERT INTO LastDays (date, quantity)
       VALUES (date('now', 'localtime'), 1)
       ON CONFLICT(date) DO UPDATE SET quantity = quantity + 1
-    `);
+    `).run();
   },
 
   getLastSevenDays(): LastDaysEntry[] {

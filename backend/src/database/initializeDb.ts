@@ -69,7 +69,7 @@ function generateInsertStatements() {
       INSERT INTO RecordFinished (
         id, patient_id, arrival_time, triage_call_time, urgency_definition_time,
         urgency_classification, appointment_call_time,
-        triage_wait_time, appointment_wait_time, status
+        triage_wait_time, appointment_wait_time, status, finished_at
       ) VALUES (
         ${id}, 'patient_${i + 1}',
         '${formatDate(arrivalTime)}',
@@ -79,7 +79,8 @@ function generateInsertStatements() {
         '${formatDate(appointmentCallTime)}',
         ${triageWaitTime},
         ${appointmentWaitTime},
-        '${status}'
+        '${status}',
+        '${formatDate(appointmentCallTime)}'
       );
     `;
 
