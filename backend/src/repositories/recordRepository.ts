@@ -47,15 +47,6 @@ export const RecordRepository = {
     return result?.count ?? 0;
   },
 
-  countAllExceptInTriage(): number {
-    const result = db.prepare(`
-      SELECT COUNT(*) as count 
-      FROM Record 
-      WHERE status != 'In Triage'
-    `).get() as { count: number } | undefined;
-    return result?.count ?? 0;
-  },
-
   countByUrgency(urgency: UrgencyClassification): number {
     const result = db.prepare(`
       SELECT COUNT(*) as count
@@ -209,6 +200,7 @@ function isValidRecord(rec: {
   triage_call_time?: string;
   urgency_definition_time?: string;
   appointment_call_time?: string;
+  urgency_classification?: string;
 }): boolean {
   const a = new Date(rec.arrival_time).getTime();
   const t = rec.triage_call_time ? new Date(rec.triage_call_time).getTime() : 0;
@@ -216,5 +208,11 @@ function isValidRecord(rec: {
   const ap = rec.appointment_call_time ? new Date(rec.appointment_call_time).getTime() : 0;
 
   if (!a || !t || !u || !ap) return false;
+
+  if (!(["triage", "red", "orange", "yellow", "green", "blue"] as UrgencyClassification[])
+        .includes(rec.urgency_classification as UrgencyClassification)) {
+    return false;
+  }
+
   return a <= t && t <= u && u <= ap;
 }

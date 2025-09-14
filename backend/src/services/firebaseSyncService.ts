@@ -41,7 +41,6 @@ async function syncCurrentState() {
   await dbRef.child("current_state").set(currentState);
 }
 
-
 // Atualiza o nó `last_days` usando apenas dados locais
 async function syncLastDays() {
   const lastDaysFromDb = LastDaysRepository.getLastSevenDays();
@@ -66,7 +65,7 @@ async function syncLastDays() {
 
 // Atualiza o nó `total_people`
 async function syncTotalPeople() {
-  const totalPeople = RecordRepository.countAllExceptInTriage();
+  const totalPeople = RecordRepository.countAll();
   await dbRef.child("total_people").set(totalPeople);
 }
 
