@@ -61,8 +61,8 @@ backend/
 │ │ └── hospitalRecord.ts                      # Modelo de registro hospitalar
 │ │
 │ ├── repositories/                            # Camada de acesso a dados
-│ │ ├── lastDaysRepository.ts                  # Contagem de entradas por dia
 │ │ ├── brokenRecordRepository.ts              # Backups de registros quebrados
+│ │ ├── lastDaysRepository.ts                  # Contagem de entradas por dia
 │ │ ├── recordFinishedRepository.ts            # Backups de registros finalizados
 │ │ └── recordRepository.ts                    # CRUD principal da tabela de registros
 │ │
