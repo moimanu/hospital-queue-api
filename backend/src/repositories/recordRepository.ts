@@ -150,6 +150,17 @@ export const RecordRepository = {
     })(); 
   },
 
+  revertLostRecordsForWaitingTriage () {
+    db.prepare(`
+      UPDATE Record
+      SET 
+        triage_call_time = NULL,
+        triage_wait_time = NULL,
+        status = 'Waiting Triage'
+      WHERE status = 'In Triage'
+    `).run();
+  },
+
   // Cancelamentos
 
   cancelRecordByNew(patient_id: string) {
