@@ -41,6 +41,12 @@ async function syncCurrentState() {
   await dbRef.child("current_state").set(currentState);
 }
 
+// Atualiza o nó `in_triage`
+async function syncInTriage() {
+  const count = RecordRepository.countByInTriage();
+  await dbRef.child("in_triage").set(count);
+}
+
 // Atualiza o nó `last_days` usando apenas dados locais
 async function syncLastDays() {
   const lastDaysFromDb = LastDaysRepository.getLastSevenDays();
@@ -81,6 +87,7 @@ export async function syncRealtimeDatabase() {
   try {
     await Promise.all([
       syncCurrentState(),
+      syncInTriage(),
       syncLastDays(),
       syncTotalPeople(),
       syncLastUpdate()

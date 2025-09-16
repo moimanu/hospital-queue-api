@@ -237,6 +237,18 @@ a {
     width: 100%;
 }
 
+.sub-card {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.icon-sub-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* --- Seções de Informação (Gráfico e Sobre) --- */
 
 .week-chart {

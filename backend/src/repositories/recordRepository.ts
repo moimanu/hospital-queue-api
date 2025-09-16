@@ -57,6 +57,16 @@ export const RecordRepository = {
     return result?.count ?? 0;
   },
 
+  countByInTriage(): number {
+    const row = db.prepare(`
+      SELECT COUNT(*) AS count
+      FROM Record
+      WHERE status = 'In Triage'
+    `).get() as { count: number };
+
+    return row?.count ?? 0;
+  },
+
   calculateAverageTriageWaitFromBothTables(n: number): number {
     const limit = n * 2;
 
@@ -154,9 +164,7 @@ export const RecordRepository = {
     db.prepare(`
       UPDATE Record
       SET 
-        triage_call_time = NULL,
-        triage_wait_time = NULL,
-        status = 'Waiting Triage'
+        status = 'In Triage (superimposed)'
       WHERE status = 'In Triage'
     `).run();
   },

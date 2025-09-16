@@ -115,6 +115,46 @@ function updateQueueData(data) {
     }
   }
 
+  // Card de "em triagem"
+  const inTriageCount = stats.in_triage ?? 0;
+  let inTriageCard = document.getElementById('in-triage');
+  const triageCard = document.getElementById('triage');
+
+  if (inTriageCount > 0) {
+    if (!inTriageCard) {
+      inTriageCard = document.createElement('li');
+      inTriageCard.id = 'in-triage';
+      inTriageCard.className = 'card-manchester';
+      inTriageCard.style.border = 'none';
+      inTriageCard.style.display = 'flex';
+
+      // inserir logo após o triage
+      if (triageCard && triageCard.parentNode) {
+        triageCard.insertAdjacentElement('afterend', inTriageCard);
+      }
+    }
+
+    inTriageCard.innerHTML = `
+      <div class="sub-card">
+        <div class="icon-sub-card">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-activity-icon lucide-activity">
+            <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>
+          </svg>
+        </div>
+        <p>${inTriageCount} pessoa${inTriageCount > 1 ? 's' : ''} 
+           está${inTriageCount > 1 ? 'm' : ''} sendo atendida${inTriageCount > 1 ? 's' : ''} 
+           na triagem...</p>
+      </div>
+    `;
+  } else {
+    if (inTriageCard) {
+      inTriageCard.remove();
+    }
+  }
+
   // Atualiza gráfico com dados last_days
   if (chart && stats.last_days) {
     const dayMap = {

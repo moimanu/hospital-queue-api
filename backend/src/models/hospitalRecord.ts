@@ -9,6 +9,7 @@ export type UrgencyClassification =
 export type RecordStatus = 
   | "Waiting Triage"
   | "In Triage"
+  | "In Triage (superimposed)"
   | "Waiting Appointment"
   | "Finished"
 
