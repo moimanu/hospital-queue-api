@@ -7,7 +7,7 @@ export const logEntryService = {
   register(patient_id: string) {
 
     const transaction = db.transaction((pid: string) => {
-      RecordRepository.cancelRecordByNew(pid);
+      RecordRepository.cancelRecord(pid, "Canceled by new record");
       RecordRepository.insertPatient(pid);
       LastDaysRepository.insertOrIncrement();
     });

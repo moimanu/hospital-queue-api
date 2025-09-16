@@ -7,6 +7,13 @@ export const RecordRepository = {
 
   // Select
 
+  selectAll(): HospitalRecord[] {
+    const stmt = db.prepare(`
+      SELECT * FROM Record
+    `);
+    return stmt.all() as HospitalRecord[];
+  },
+
   selectAllByPatientId(patient_id: string): HospitalRecord[] {
     return db.prepare(`
       SELECT * FROM Record 
@@ -171,12 +178,15 @@ export const RecordRepository = {
 
   // Cancelamentos
 
-  cancelRecordByNew(patient_id: string) {
-    moveBrokedToBackup(patient_id, "Canceled by new record");
-  },
+  cancelRecord(patient_id: string, reason: string) {
+    const brokedRecords = RecordRepository.selectAllByPatientId(patient_id);
 
-  cancelRecordByTimeout(patient_id: string) {
-    moveBrokedToBackup(patient_id, "Canceled by timeout");
+    db.transaction(() => {
+      for (const rec of brokedRecords) {
+        BrokenRecordRepository.insertBrokedRecord(rec, reason);
+        RecordRepository.deleteRecord(rec.patient_id);
+      }
+    })();
   },
 
   // Deletes
@@ -187,17 +197,6 @@ export const RecordRepository = {
 };
 
 // Funções auxiliares internas
-
-function moveBrokedToBackup(patient_id: string, reason: string) {
-  const brokedRecords = RecordRepository.selectAllByPatientId(patient_id);
-
-  db.transaction(() => {
-    for (const rec of brokedRecords) {
-      BrokenRecordRepository.insertBrokedRecord(rec, reason);
-      RecordRepository.deleteRecord(rec.patient_id);
-    }
-  })();
-}
 
 function moveFinishedToBackup(patient_id: string) { 
   const finishedRecords = RecordRepository.selectAllFinishedByPatientId(patient_id);

@@ -224,7 +224,7 @@ Registra a chamada do paciente para o atendimento no hospital.
 | `appointment_call_time`   | TEXT (hora no formato HH:MM:SS)                                 |
 | `triage_wait_time`        | INTEGER (duração em segundos)                                   |
 | `appointment_wait_time`   | INTEGER (duração em segundos)                                   |
-| `status`                  | TEXT (ex: "Waiting Triage", "In Triage", "Waiting Appointment", "Finished") |
+| `status`                  | TEXT (ex: "Waiting Triage", "In Triage", "In Triage (superimposed)", "Waiting Appointment", "Finished") |
 
 ---
 
