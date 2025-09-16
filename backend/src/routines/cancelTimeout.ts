@@ -1,7 +1,7 @@
 import { RecordRepository } from "../repositories/recordRepository";
 import { syncRealtimeDatabase } from "../services/firebaseSyncService";
 
-const TIMEOUT_SECONDS = 1; // 6 horas
+const TIMEOUT_SECONDS = 21600; // 6 horas
 
 export function startCancelTimeoutRoutine() {
   async function cancelExpiredRecords() {

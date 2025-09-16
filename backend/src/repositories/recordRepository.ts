@@ -40,7 +40,7 @@ export const RecordRepository = {
     return db.prepare(`
       SELECT * FROM Record
       WHERE patient_id = ? 
-        AND status IN ('Waiting Triage', 'In Triage', 'Waiting Appointment')
+        AND status IN ('Waiting Triage', 'In Triage', 'In Triage (superimposed)', 'Waiting Appointment')
       ORDER BY id DESC 
       LIMIT 1
     `).get(patient_id) as HospitalRecord | undefined;
@@ -49,7 +49,7 @@ export const RecordRepository = {
   countAll(): number {
     const result = db.prepare(`
       SELECT COUNT(*) as count 
-      FROM Record
+      FROM Record WHERE status != 'In Triage (superimposed)'
     `).get() as { count: number } | undefined;
     return result?.count ?? 0;
   },
@@ -59,7 +59,7 @@ export const RecordRepository = {
       SELECT COUNT(*) as count
       FROM Record
       WHERE urgency_classification = ? 
-        AND status != 'In Triage'
+        AND (status != 'In Triage' AND status != 'In Triage (superimposed)')
     `).get(urgency) as { count: number } | undefined;
     return result?.count ?? 0;
   },
@@ -167,7 +167,7 @@ export const RecordRepository = {
     })(); 
   },
 
-  revertLostRecordsForWaitingTriage () {
+  alertLostRecordsForWaitingTriage () {
     db.prepare(`
       UPDATE Record
       SET 

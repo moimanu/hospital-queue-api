@@ -70,6 +70,9 @@ backend/
 │ │ ├── index.ts                               # Rotas principais
 │ │ └── logRoutes.ts                           # Rotas de logs
 │ │
+│ ├── routines/                                # Rotinas
+│ │ └── cancelTimeout.ts                       # Rotina para cancelamento de registros
+│ │
 │ ├── services/                                # Serviços de regras de negócio
 │ │ ├── firebaseSyncService.ts                 # Sincroniza dados com Firebase
 │ │ ├── logAppointmentCallService.ts           # Registro de chamadas de atendimento
