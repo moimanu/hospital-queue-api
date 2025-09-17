@@ -57,6 +57,9 @@ backend/
 │ │ ├── dateHelper.ts                          # Funções para manipulação de datas    
 │ │ └── handleLogAction.ts                     # Lida com diferentes tipos de logs
 │ │
+│ ├── middlewares/                             # Funções intermediárias
+│ │ └──simpleAuthMiddleware.ts                 # Autenticação simples por token
+│ │
 │ ├── models/                                  # Modelos de dados
 │ │ └── hospitalRecord.ts                      # Modelo de registro hospitalar
 │ │
@@ -85,6 +88,8 @@ backend/
 │ │
 │ └── index.ts                                 # Ponto de entrada do backend
 │ 
+├── .env                                       # Variáveis de ambiente
+├── .env.example                               # Exemplo de variáveis de ambiente
 ├── .gitignore                                 # Arquivos e pastas ignorados pelo Git
 ├── database.db                                # Banco de dados SQLite
 ├── package-lock.json                          # Registro exato das versões das dependências

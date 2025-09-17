@@ -11,9 +11,10 @@ app.use("/api", router);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 initializeDatabase();
-
 startCancelTimeoutRoutine();
 
-app.listen(3000, () => {
-  console.log("\n🚀 Server running on http://localhost:3000/api-docs");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`\n🚀 Server running on http://localhost:${PORT}/api-docs`);
 });

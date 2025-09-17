@@ -13,6 +13,15 @@ export const swaggerSpec = swaggerJSDoc({
         url: "http://localhost:3000/api",
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT", // pode deixar JWT mesmo, mesmo usando token fixo
+        },
+      },
+    },
   },
   apis: ["./src/routes/*.ts"],
 });

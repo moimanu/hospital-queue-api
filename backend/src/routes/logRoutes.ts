@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { logController } from "../controllers/logController";
+import { simpleAuthMiddleware } from "../middlewares/simpleAuthMiddleware";
 
 export const logRoutes = Router();
 
@@ -9,6 +10,8 @@ export const logRoutes = Router();
  *   post:
  *     summary: Register patient entry at the hospital
  *     tags: [Logs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -26,7 +29,7 @@ export const logRoutes = Router();
  *       500:
  *         description: Internal server error
  */
-logRoutes.post("/entry", logController.entry);
+logRoutes.post("/entry", simpleAuthMiddleware, logController.entry);
 
 /**
  * @swagger
@@ -34,6 +37,8 @@ logRoutes.post("/entry", logController.entry);
  *   put:
  *     summary: Log triage call for patient
  *     tags: [Logs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -51,7 +56,7 @@ logRoutes.post("/entry", logController.entry);
  *       500:
  *         description: Internal server error
  */
-logRoutes.put("/triage-call", logController.triageCall);
+logRoutes.put("/triage-call", simpleAuthMiddleware, logController.triageCall);
 
 /**
  * @swagger
@@ -59,6 +64,8 @@ logRoutes.put("/triage-call", logController.triageCall);
  *   put:
  *     summary: Define urgency classification for a patient
  *     tags: [Logs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -79,7 +86,7 @@ logRoutes.put("/triage-call", logController.triageCall);
  *       500:
  *         description: Internal server error
  */
-logRoutes.put("/urgency-definition", logController.urgencyDefinition);
+logRoutes.put("/urgency-definition", simpleAuthMiddleware, logController.urgencyDefinition);
 
 /**
  * @swagger
@@ -87,6 +94,8 @@ logRoutes.put("/urgency-definition", logController.urgencyDefinition);
  *   put:
  *     summary: Register appointment call for a patient
  *     tags: [Logs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -104,4 +113,4 @@ logRoutes.put("/urgency-definition", logController.urgencyDefinition);
  *       500:
  *         description: Internal server error
  */
-logRoutes.put("/appointment-call", logController.appointmentCall);
+logRoutes.put("/appointment-call", simpleAuthMiddleware, logController.appointmentCall);

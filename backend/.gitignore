@@ -17,6 +17,7 @@ build/
 # Ambientes
 .env
 .env.*
+!.env.example
 
 # Logs
 logs/
