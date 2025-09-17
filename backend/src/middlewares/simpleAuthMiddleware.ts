@@ -1,17 +1,22 @@
 import { Request, Response, NextFunction } from "express";
 
-const API_TOKEN = process.env.API_TOKEN;
-
 export function simpleAuthMiddleware(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Token não fornecido" });
+  if (!authHeader) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const token = authHeader.split(" ")[1];
-  if (token !== API_TOKEN) {
-    return res.status(403).json({ error: "Token inválido" });
+  const parts = authHeader.split(" ");
+
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const token = parts[1];
+
+  if (token !== process.env.API_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   next();
