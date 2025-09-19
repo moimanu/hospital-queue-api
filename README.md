@@ -86,6 +86,9 @@ backend/
 │ ├── types/                                   # Definições de tipos TypeScript
 │ │ └── swagger-jsdoc.d.ts                     # Tipos para integração com swagger-jsdoc
 │ │
+│ ├── utils/                                   # Funções genéricas, não ligadas ao domínio do seu sistema
+│ │ └── crypto.ts                              # Função para criptografia
+│ │
 │ └── index.ts                                 # Ponto de entrada do backend
 │ 
 ├── .env                                       # Variáveis de ambiente

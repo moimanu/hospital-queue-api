@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { encryptDeterministic } from "../utils/crypto";
 
 type ActionFunction = (body: any) => void;
 
@@ -16,9 +17,19 @@ export function handleLogAction(
   }
 
   try {
-    action(req.body);
+    const body = { ...req.body };
+
+    // criptografar o patient_id se existir
+    if (body.patient_id) {
+      body.patient_id = encryptDeterministic(body.patient_id.toString());
+    }
+
+    action(body);
+
     return res.status(200).json({ message: successMessage });
   } catch (err: any) {
-    return res.status(err?.status || 500).json({ error: err?.message || "Internal server error." });
+    return res
+      .status(err?.status || 500)
+      .json({ error: err?.message || "Internal server error." });
   }
 }
