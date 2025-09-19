@@ -1,5 +1,5 @@
 import { RecordRepository } from "../repositories/recordRepository";
-import { syncRealtimeDatabase } from "./firebaseSyncService";
+import { syncRealtimeDatabase, syncRealtimeDatabaseWithLast10 } from "./firebaseSyncService";
 
 export const logAppointmentCallService = {
   call(patient_id: string) {
@@ -13,6 +13,6 @@ export const logAppointmentCallService = {
       RecordRepository.updateAppointmentCall(patient_id);
     }
     
-    syncRealtimeDatabase().catch(console.error);
+    syncRealtimeDatabaseWithLast10().catch(console.error);
   }
 };

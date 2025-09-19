@@ -18,7 +18,6 @@ const database = getDatabase(app);
 function formatAvgTime(seconds) {
   if (seconds === 0) return '...';
 
-  // Garante que segundos sejam um número inteiro
   seconds = Math.round(seconds);
 
   const hrs = Math.floor(seconds / 3600);
@@ -30,6 +29,23 @@ function formatAvgTime(seconds) {
   if (mins > 0) result += `${mins}min `;
   if (secs > 0) result += `${secs}s`;
 
+  return result.trim();
+}
+
+// Calcula "há Xh Ymin" para timestamps
+function timeAgo(isoDate) {
+  const now = new Date();
+  const past = new Date(isoDate);
+  const diffMs = now.getTime() - past.getTime();
+  const diffMinutes = Math.floor(diffMs / 60000);
+
+  if (diffMinutes < 1) return 'agora mesmo';
+  const hrs = Math.floor(diffMinutes / 60);
+  const mins = diffMinutes % 60;
+
+  let result = '';
+  if (hrs > 0) result += `${hrs}h `;
+  if (mins > 0) result += `${mins}min`;
   return result.trim();
 }
 
@@ -68,6 +84,26 @@ function createChart() {
   });
 }
 
+// Atualiza a lista de últimas chamadas
+function updateLastAppointments(appointments) {
+  const listEl = document.getElementById('last-appointments-list');
+  if (!listEl) return;
+
+  listEl.innerHTML = ''; // limpa a lista
+
+  appointments.forEach(item => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="icon-sub-card">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-plus-icon lucide-bell-plus"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M15 8h6"/><path d="M18 5v6"/><path d="M20.002 14.464a9 9 0 0 0 .738.863A1 1 0 0 1 20 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 8.75-5.332"/></svg>
+      </div>
+      <p>${timeAgo(item.called_at)}</p>
+    `;
+    listEl.appendChild(li);
+  });
+}
+
+// Atualiza os dados da fila e dos cards
 function updateQueueData(data) {
   if (!data || !data.stats || !data.stats.current_state) {
     console.warn('Dados incompletos: stats ou current_state ausente');
@@ -76,18 +112,18 @@ function updateQueueData(data) {
 
   const stats = data.stats;
 
-  // Atualiza total de pessoas
+  // Total de pessoas
   const totalPeopleEl = document.querySelector('.counter');
   if (totalPeopleEl) totalPeopleEl.textContent = stats.total_people ?? '0';
 
-  // Atualiza última atualização formatada
+  // Última atualização
   const lastUpdateEl = document.querySelector('.last-update-caption');
   if (lastUpdateEl && stats.last_update) {
     const lastUpdateDate = new Date(stats.last_update);
     lastUpdateEl.textContent = `Última atualização: ${lastUpdateDate.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}`;
   }
 
-  // Mapeamento estado -> id dos cards no HTML
+  // Atualiza os cards
   const stateMap = {
     triage: 'triage',
     red: 'red',
@@ -104,18 +140,16 @@ function updateQueueData(data) {
     const count = stats.current_state[stateKey]?.count ?? 0;
     const avgTimeSeconds = stats.current_state[stateKey]?.avg_time ?? 0;
 
-    // Atualiza contagem
     const countEl = card.querySelector('.count-manchester h3');
     if (countEl) countEl.textContent = count;
 
-    // Atualiza média de espera
     if (stateKey !== 'red') {
       const avgTimeEl = card.querySelector('.time-caption p');
       if (avgTimeEl) avgTimeEl.textContent = `Média de espera: ${formatAvgTime(avgTimeSeconds)}`;
     }
   }
 
-  // Card de "em triagem"
+  // Card "em triagem"
   const inTriageCount = stats.in_triage ?? 0;
   let inTriageCard = document.getElementById('in-triage');
   const triageCard = document.getElementById('triage');
@@ -128,7 +162,6 @@ function updateQueueData(data) {
       inTriageCard.style.border = 'none';
       inTriageCard.style.display = 'flex';
 
-      // inserir logo após o triage
       if (triageCard && triageCard.parentNode) {
         triageCard.insertAdjacentElement('afterend', inTriageCard);
       }
@@ -149,22 +182,15 @@ function updateQueueData(data) {
            na triagem...</p>
       </div>
     `;
-  } else {
-    if (inTriageCard) {
-      inTriageCard.remove();
-    }
+  } else if (inTriageCard) {
+    inTriageCard.remove();
   }
 
-  // Atualiza gráfico com dados last_days
+  // Atualiza gráfico last_days
   if (chart && stats.last_days) {
     const dayMap = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6
+      Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3,
+      Thursday: 4, Friday: 5, Saturday: 6
     };
 
     const labelsOriginal = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -179,9 +205,7 @@ function updateQueueData(data) {
     const chartDataOriginal = new Array(7).fill(0);
     for (const [day, value] of Object.entries(stats.last_days)) {
       const index = dayMap[day];
-      if (index !== undefined) {
-        chartDataOriginal[index] = value;
-      }
+      if (index !== undefined) chartDataOriginal[index] = value;
     }
 
     const chartDataRotated = rotateArrayLeft(chartDataOriginal, (todayIndex + 1) % 7);
@@ -192,12 +216,35 @@ function updateQueueData(data) {
   }
 }
 
+// Observadores Firebase
 const queueRef = ref(database, '/');
-
 onValue(queueRef, (snapshot) => {
   const data = snapshot.val();
-  if (data) {
-    updateQueueData(data);
+  if (data) updateQueueData(data);
+});
+
+// Observa últimas 10 chamadas
+const lastAppointmentsRef = ref(database, '/stats/last10Appointments');
+onValue(lastAppointmentsRef, (snapshot) => {
+  const appointments = snapshot.val();
+  if (appointments && Array.isArray(appointments)) {
+    updateLastAppointments(appointments);
+  }
+});
+
+// Botão para mostrar/esconder lista
+const toggleBtn = document.getElementById('toggle-last-appointments');
+const lastsList = document.getElementById('last-appointments-list');
+
+toggleBtn.addEventListener('click', () => {
+  const isClosed = lastsList.style.maxHeight === '0px' || lastsList.style.maxHeight === '0';
+  
+  if (isClosed) {
+    lastsList.style.maxHeight = lastsList.scrollHeight + 'px';
+    toggleBtn.textContent = 'Esconder';
+  } else {
+    lastsList.style.maxHeight = '0';
+    toggleBtn.textContent = 'Visualizar';
   }
 });
 

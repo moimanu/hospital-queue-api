@@ -23,3 +23,24 @@ export function getLocalWeekday(dateInput: string | number | Date = new Date()):
     weekday: "long",
   }).format(date);
 }
+
+/**
+ * Retorna a data/hora atual no fuso configurado (America/Sao_Paulo),
+ * em formato ISO (YYYY-MM-DDTHH:mm:ss).
+ */
+export function getLocalISODateTime(dateInput: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
+    .format(dateInput)
+    .replace(",", "");
+    
+  return parts.replace(" ", "T");
+}

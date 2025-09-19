@@ -3,7 +3,7 @@ import { RecordRepository } from "../repositories/recordRepository";
 import { RecordFinishedRepository } from "../repositories/recordFinishedRepository";
 import { LastDaysRepository } from "../repositories/lastDaysRepository";
 import { UrgencyClassification } from "../models/hospitalRecord";
-import { getLocalWeekday } from "../helpers/dateHelper";
+import { getLocalWeekday, getLocalISODateTime } from "../helpers/dateHelper";
 
 // Lista de todos os níveis de urgência considerados
 const urgencyLevels: UrgencyClassification[] = [
@@ -77,8 +77,25 @@ async function syncTotalPeople() {
 
 // Atualiza o nó `last_update`
 async function syncLastUpdate() {
-  const isoNow = new Date().toISOString();
+  const isoNow = getLocalISODateTime();
   await dbRef.child("last_update").set(isoNow);
+}
+
+async function syncLast10Appointments() {
+  const now = getLocalISODateTime();
+
+  const ref = dbRef.child("last10Appointments");
+  const snapshot = await ref.once("value");
+  const current = snapshot.val() as { called_at: string }[] | null;
+
+  let updated: { called_at: string }[] = current ? Object.values(current) : [];
+  updated.push({ called_at: now });
+
+  if (updated.length > 10) {
+    updated = updated.slice(updated.length - 10);
+  }
+
+  await ref.set(updated);
 }
 
 // -------- Função principal que chama as outras -------- //
@@ -94,5 +111,21 @@ export async function syncRealtimeDatabase() {
     ]);
   } catch (error) {
     console.error("Failed to update Firebase Realtime Database:", error);
+  }
+}
+
+// -------- Função principal extendida -------- //
+export async function syncRealtimeDatabaseWithLast10() {
+  try {
+    await Promise.all([
+      syncCurrentState(),
+      syncInTriage(),
+      syncLastDays(),
+      syncTotalPeople(),
+      syncLastUpdate(),
+      syncLast10Appointments()
+    ]);
+  } catch (error) {
+    console.error("Failed to update Firebase Realtime Database (with last10Appointments):", error);
   }
 }
