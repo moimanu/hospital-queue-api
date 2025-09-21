@@ -1,5 +1,5 @@
 import { RecordRepository } from "../repositories/recordRepository";
-import { syncRealtimeDatabase } from "../services/firebaseSyncService";
+import { updateCache } from "../services/cache/syncService";
 
 const TIMEOUT_SECONDS = 21600; // 6 horas
 
@@ -28,7 +28,7 @@ export function startCancelTimeoutRoutine() {
     });
 
     if (anyCanceled) {
-      await syncRealtimeDatabase().catch(console.error);
+      await updateCache().catch(console.error);
     }
   }
 

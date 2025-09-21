@@ -1,5 +1,5 @@
 import { db } from './db';
-import { syncRealtimeDatabase } from "../services/firebaseSyncService";
+import { updateCache } from "../services/cache/syncService";
 
 // Utilitário para converter Date -> 'YYYY-MM-DD HH:mm:ss'
 function formatDate(date: Date): string {
@@ -103,7 +103,7 @@ export function initializeDatabase() {
     db.exec(insertStatements);
     populateLastDays();
 
-    syncRealtimeDatabase().catch(console.error);
+    updateCache().catch(console.error);
     console.log("\n🔥 Sincronização concluída...");
   } else {
     console.log("\n👍 A tabela já contém registros. Nenhuma inserção necessária.");
