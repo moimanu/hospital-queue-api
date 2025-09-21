@@ -1,7 +1,7 @@
-import { RecordRepository } from "../repositories/recordRepository";
-import { syncRealtimeDatabase } from "./firebaseSyncService";
+import { RecordRepository } from "../../repositories/recordRepository";
+import { updateCache } from "../cache/syncService";
 
-export const logTriageCallService = {
+export const triageCallService = {
   call(patient_id: string) {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
@@ -15,6 +15,6 @@ export const logTriageCallService = {
       RecordRepository.updateTriageCall(patient_id);
     }
 
-    syncRealtimeDatabase().catch(console.error);
+    updateCache().catch(console.error);
   }
 };

@@ -1,8 +1,8 @@
-import { RecordRepository } from "../repositories/recordRepository";
-import { UrgencyClassification } from "../models/hospitalRecord";
-import { syncRealtimeDatabase } from "./firebaseSyncService";
+import { RecordRepository } from "../../repositories/recordRepository";
+import { UrgencyClassification } from "../../models/hospitalRecord";
+import { updateCache } from "../cache/syncService";
 
-export const logUrgencyDefinitionService = {
+export const urgencyDefinitionService = {
   define(patient_id: string, classification: UrgencyClassification) {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
@@ -14,6 +14,6 @@ export const logUrgencyDefinitionService = {
       RecordRepository.updateUrgencyDefinition(patient_id, classification);
     }
 
-    syncRealtimeDatabase().catch(console.error);
+    updateCache().catch(console.error);
   }
 };

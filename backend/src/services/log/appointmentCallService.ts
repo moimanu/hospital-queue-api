@@ -1,7 +1,7 @@
-import { RecordRepository } from "../repositories/recordRepository";
-import { syncRealtimeDatabase, syncRealtimeDatabaseWithLast10 } from "./firebaseSyncService";
+import { RecordRepository } from "../../repositories/recordRepository";
+import { updateCache } from "../cache/syncService";
 
-export const logAppointmentCallService = {
+export const appointmentCallService = {
   call(patient_id: string) {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
@@ -13,6 +13,6 @@ export const logAppointmentCallService = {
       RecordRepository.updateAppointmentCall(patient_id);
     }
     
-    syncRealtimeDatabaseWithLast10().catch(console.error);
+    updateCache(true).catch(console.error);
   }
 };
