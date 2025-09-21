@@ -35,6 +35,7 @@ A API recebe os logs do hospital e os salva localmente, sincronizando-os em temp
 
 ```
 backend/
+│
 ├── node_modules/                              # Dependências do Node.js instaladas pelo npm
 │
 ├── src/                                       # Código-fonte principal do backend
@@ -47,11 +48,6 @@ backend/
 │ │
 │ ├── database/                                # Configuração e conexão com o banco de dados
 │ │ └── db.ts                                  # Conexão com SQLite via better-sqlite3
-│ │
-│ ├── firebase/                                # Integração com Firebase
-│ │ ├── exampleJsonRealtimeDatabase.json       # Exemplo da estrutura atual do Realtime Database
-│ │ ├── firebaseAdmin.ts                       # Configuração do SDK Admin do Firebase
-│ │ └── serviceAccountKey.json                 # Credenciais do Firebase
 │ │
 │ ├── helpers/                                 # Funções utilitárias
 │ │ ├── dateHelper.ts                          # Funções para manipulação de datas    
@@ -72,16 +68,25 @@ backend/
 │ ├── routes/                                  # Definição de rotas
 │ │ ├── index.ts                               # Rotas principais
 │ │ └── logRoutes.ts                           # Rotas de logs
+│ │ └── sseRoutes.ts                           # Rotas de SSE
 │ │
 │ ├── routines/                                # Rotinas
 │ │ └── cancelTimeout.ts                       # Rotina para cancelamento de registros
 │ │
 │ ├── services/                                # Serviços de regras de negócio
-│ │ ├── firebaseSyncService.ts                 # Sincroniza dados com Firebase
-│ │ ├── logAppointmentCallService.ts           # Registro de chamadas de atendimento
-│ │ ├── logEntryService.ts                     # Registro de entradas no hospital
-│ │ ├── logTriageCallService.ts                # Registro de chamadas de triagem
-│ │ └── logUrgencyDefinitionService.ts         # Definição de classificação de urgência
+│ │ │
+│ │ ├── cache/                                 # Lida com dados simplificados em cache
+│ │ │ ├── cacheService.ts                      # Regras de negócio para o cache
+│ │ │ └── syncService.ts                       # Sincronização do cache
+│ │ │ 
+│ │ └── log/
+│ │   ├── logAppointmentCallService.ts         # Registro de chamadas de atendimento
+│ │   ├── logEntryService.ts                   # Registro de entradas no hospital
+│ │   ├── logTriageCallService.ts              # Registro de chamadas de triagem
+│ │   └── logUrgencyDefinitionService.ts       # Definição de classificação de urgência
+│ │
+│ ├── sse/                                     # Lida com o SSE
+│ │   └── publicStream.ts                      # Gerencia os clientes do SSE
 │ │
 │ ├── types/                                   # Definições de tipos TypeScript
 │ │ └── swagger-jsdoc.d.ts                     # Tipos para integração com swagger-jsdoc
@@ -285,16 +290,10 @@ Mesmos campos da tabela `Record`, com a adição de:
 
 ```
 frontend/
-├── .firebase/                                 # Arquivos internos do Firebase
-│ └── hosting.cHVibGlj.cache                   # Cache do Firebase Hosting
 │
-├── public/                                    # Arquivos públicos servidos pelo frontend
-│ ├── img/                                     # Imagens usadas no frontend
-│ ├── index.html                               # Página HTML principal
-│ ├── script.js                                # Lógica JavaScript do frontend
-│ └── style.css                                # Estilos CSS
-│
-├── .firebaserc                                # Configurações locais do projeto Firebase
-├── .gitignore                                 # Arquivos e pastas ignorados pelo Git
-└── firebase.json                              # Configuração do Firebase Hosting
+└── public/                                    # Arquivos públicos servidos pelo frontend
+  ├── img/                                     # Imagens usadas no frontend
+  ├── index.html                               # Página HTML principal
+  ├── script.js                                # Lógica JavaScript do frontend
+  └── style.css                                # Estilos CSS
 ```
