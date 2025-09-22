@@ -6,34 +6,30 @@ import { swaggerSpec } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
 import { initializeDatabase } from './database/initializeDb';
 import { startCancelTimeoutRoutine } from "./routines/cancelTimeout";
+import { streamHandler } from "./sse/publicStream";
 
 const app = express();
 
-// Lista de origens permitidas (frontend e backend)
-const allowedOrigins = [
-  process.env.FRONTEND_URL!,
-  process.env.BACKEND_URL!
-];
+// Variáveis de ambiente
+const FRONTEND_URL = process.env.FRONTEND_URL!;
+const BACKEND_URL = process.env.BACKEND_URL!;
 
-// Configuração CORS
+// Middleware CORS global
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT'],
-  credentials: true,
-  optionsSuccessStatus: 200
+  origin: FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
 }));
 
 app.use(express.json());
 
-// Rotas
+// Rotas normais
 app.use("/api", router);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// SSE route com CORS aplicado diretamente
+app.options("/api/sse/events", cors({ origin: FRONTEND_URL, methods: ["GET"], credentials: true }));
+app.get("/api/sse/events", cors({ origin: FRONTEND_URL, methods: ["GET"], credentials: true }), streamHandler);
 
 // Inicializações
 initializeDatabase();
@@ -41,5 +37,5 @@ startCancelTimeoutRoutine();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\n🚀 Server running on ${process.env.BACKEND_URL}/api-docs`);
+  console.log(`\n🚀 Server running on ${BACKEND_URL}/api-docs`);
 });
