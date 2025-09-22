@@ -1,5 +1,5 @@
 // helpers/dateHelper.ts
-const TIMEZONE = "America/Sao_Paulo";
+const TIMEZONE = process.env.TIMEZONE || "America/Sao_Paulo";
 
 /**
  * Retorna o dia da semana em inglês (Sunday, Monday, etc.),

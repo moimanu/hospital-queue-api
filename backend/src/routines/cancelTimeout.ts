@@ -1,7 +1,8 @@
 import { RecordRepository } from "../repositories/recordRepository";
 import { updateCache } from "../services/cache/syncService";
 
-const TIMEOUT_SECONDS = 21600; // 6 horas
+const TIMEOUT_SECONDS = Number(process.env.RECORD_TIMEOUT_SECONDS) || 21600;
+const INTERVAL_MS = Number(process.env.CANCEL_INTERVAL_MS) || 5 * 60 * 1000;
 
 export function startCancelTimeoutRoutine() {
   async function cancelExpiredRecords() {
@@ -33,7 +34,7 @@ export function startCancelTimeoutRoutine() {
   }
 
   // Executa a cada 5 minutos
-  setInterval(cancelExpiredRecords, 5 * 60 * 1000);
+  setInterval(cancelExpiredRecords, INTERVAL_MS);
 
   // Executa uma vez ao iniciar
   cancelExpiredRecords();

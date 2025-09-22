@@ -1,7 +1,7 @@
 import Database, { Database as BetterSqliteDatabase } from "better-sqlite3";
 
 // Cria conexão
-const db: BetterSqliteDatabase = new Database("database.db");
+const db: BetterSqliteDatabase = new Database(process.env.DB_PATH || "database.db");
 
 // Cria tabela se não existir
 db.exec(`

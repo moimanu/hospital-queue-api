@@ -1,7 +1,9 @@
 import crypto from "crypto";
 
 const ALGORITHM = "aes-256-ctr";
-const SECRET_KEY = crypto.createHash("sha256").update("sua-chave-secreta").digest();
+const SECRET_KEY = crypto.createHash("sha256")
+  .update(process.env.CRYPTO_SECRET_KEY || "fallback-secret")
+  .digest();
 const IV_LENGTH = 16;
 
 function getDeterministicIV(text: string): Buffer {
