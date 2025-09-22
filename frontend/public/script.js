@@ -166,7 +166,7 @@ function updateQueueData(stats) {
 
 // ===================== SSE com reconexão automática =====================
 function createSSE() {
-  const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events');
+  const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events'); // http://localhost:3000/api/sse/events (para testar localmente)
 
   evtSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
