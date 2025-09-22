@@ -165,7 +165,7 @@ function updateQueueData(stats) {
 }
 
 // ===================== SSE =====================
-const evtSource = new EventSource('http://localhost:3000/api/sse/events');
+const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events');
 evtSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
   updateQueueData(data);
@@ -189,7 +189,7 @@ toggleBtn.addEventListener('click', () => {
 // ===================== Inicialização =====================
 window.onload = () => {
   createChart();
-  const evtSource = new EventSource('http://localhost:3000/api/sse/events');
+  const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events');
 
   evtSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
