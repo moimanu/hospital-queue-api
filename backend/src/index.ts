@@ -17,7 +17,7 @@ const BACKEND_URL = process.env.BACKEND_URL!;
 // Middleware CORS global
 app.use(cors({
   origin: FRONTEND_URL,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET","POST","PUT","DELETE"],
   credentials: true
 }));
 
@@ -27,9 +27,9 @@ app.use(express.json());
 app.use("/api", router);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// SSE route com CORS aplicado diretamente
-app.options("/api/sse/events", cors({ origin: FRONTEND_URL, methods: ["GET"], credentials: true }));
-app.get("/api/sse/events", cors({ origin: FRONTEND_URL, methods: ["GET"], credentials: true }), streamHandler);
+// SSE route com CORS direto
+app.options("/api/sse/events", cors({ origin: FRONTEND_URL }));
+app.get("/api/sse/events", cors({ origin: FRONTEND_URL }), streamHandler);
 
 // Inicializações
 initializeDatabase();

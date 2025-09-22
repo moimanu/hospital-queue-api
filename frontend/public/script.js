@@ -164,12 +164,22 @@ function updateQueueData(stats) {
   if(stats.last10Appointments) updateLastAppointments(stats.last10Appointments);
 }
 
-// ===================== SSE =====================
-const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events');
-evtSource.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  updateQueueData(data);
-};
+// ===================== SSE com reconexão automática =====================
+function createSSE() {
+  const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events');
+
+  evtSource.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    updateQueueData(data);
+    updateLastAppointments(data.last10Appointments || []);
+  };
+
+  evtSource.onerror = () => {
+    console.warn("SSE connection lost, reconnecting in 3s...");
+    evtSource.close();
+    setTimeout(createSSE, 3000); // tenta reconectar após 3 segundos
+  };
+}
 
 // ===================== Botão mostrar/esconder =====================
 const toggleBtn = document.getElementById('toggle-last-appointments');
@@ -189,11 +199,5 @@ toggleBtn.addEventListener('click', () => {
 // ===================== Inicialização =====================
 window.onload = () => {
   createChart();
-  const evtSource = new EventSource('https://hospital-queue-api.onrender.com/api/sse/events');
-
-  evtSource.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    updateQueueData(data);
-    updateLastAppointments(data.last10Appointments || []);
-  };
+  createSSE(); // inicia o SSE com reconexão automática
 };

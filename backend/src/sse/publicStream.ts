@@ -9,8 +9,8 @@ export function streamHandler(req: Request, res: Response) {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  // Enviar cabeçalhos imediatamente
-  res.flushHeaders();
+  // Pequeno delay para garantir que proxy do Render repasse os headers
+  setTimeout(() => res.flushHeaders(), 10);
 
   // Enviar cache inicial
   res.write(`data: ${JSON.stringify(cacheService.getCache())}\n\n`);
