@@ -41,5 +41,5 @@ startCancelTimeoutRoutine();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\n🚀 Server running on http://localhost:${PORT}/api-docs`);
+  console.log(`\n🚀 Server running on ${process.env.BACKEND_URL}/api-docs`);
 });

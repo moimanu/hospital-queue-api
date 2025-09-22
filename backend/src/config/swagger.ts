@@ -1,4 +1,7 @@
+import "dotenv/config";
 import swaggerJSDoc from "swagger-jsdoc";
+
+const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
 
 export const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -10,7 +13,7 @@ export const swaggerSpec = swaggerJSDoc({
     },
     servers: [
       {
-        url: `${process.env.BACKEND_URL}/api`,
+        url: `${backendUrl}/api`,
       },
     ],
     components: {
@@ -18,7 +21,7 @@ export const swaggerSpec = swaggerJSDoc({
         bearerAuth: {
           type: "http",
           scheme: "bearer",
-          bearerFormat: "JWT", // pode deixar JWT mesmo, mesmo usando token fixo
+          bearerFormat: "JWT",
         },
       },
     },
