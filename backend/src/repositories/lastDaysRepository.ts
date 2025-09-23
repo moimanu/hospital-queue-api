@@ -18,10 +18,13 @@ export const LastDaysRepository = {
   },
 
   getLastSevenDays(): LastDaysEntry[] {
-    const today = new Date();
+    const todayISO = getLocalISODate();
+    
+    const today = new Date(todayISO + 'T00:00:00');
+
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - 6);
-
+    
     const startDateISO = getLocalISODate(startDate);
 
     const stmt = db.prepare(`
