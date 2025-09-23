@@ -16,17 +16,11 @@ function formatAvgTime(seconds) {
 
 // Calcula "há Xh Ymin" para timestamps ISO
 function timeAgo(isoDate) {
-  const now = new Date();
-  const past = new Date(isoDate);
-  const diffMs = now.getTime() - past.getTime();
-  const diffMinutes = Math.floor(diffMs / 60000);
-  if (diffMinutes < 1) return 'agora mesmo';
-  const hrs = Math.floor(diffMinutes / 60);
-  const mins = diffMinutes % 60;
-  let result = '';
-  if (hrs > 0) result += `${hrs}h `;
-  if (mins > 0) result += `${mins}min`;
-  return result.trim();
+  // Use date-fns-tz para garantir que a data seja interpretada no fuso horário UTC
+  const past = dateFnsTz.zonedTimeToUtc(isoDate);
+  // Calcula a diferença em relação à data e hora atuais, formatando para o português
+  const result = dateFns.formatDistanceToNow(past, { addSuffix: true, locale: dateFns.ptBR });
+  return result.replace('cerca de ', ''); // Opcional: remove "cerca de"
 }
 
 // ===================== Gráfico =====================
@@ -74,7 +68,7 @@ function updateLastAppointments(appointments) {
           <path d="M20.002 14.464a9 9 0 0 0 .738.863A1 1 0 0 1 20 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 8.75-5.332"/>
         </svg>
       </div>
-      <p>${timeAgo(item.called_at)}</p>
+      <p>chamado ${timeAgo(item.called_at)}</p>
     `;
     listEl.appendChild(li);
   });
@@ -134,8 +128,8 @@ function updateQueueData(stats) {
           </svg>
         </div>
         <p>${inTriageCount} pessoa${inTriageCount > 1 ? 's' : ''} 
-           está${inTriageCount > 1 ? 'm' : ''} sendo atendida${inTriageCount > 1 ? 's' : ''} 
-           na triagem...</p>
+          está${inTriageCount > 1 ? 'm' : ''} sendo atendida${inTriageCount > 1 ? 's' : ''} 
+          na triagem...</p>
       </div>
     `;
   } else if (inTriageCard) {

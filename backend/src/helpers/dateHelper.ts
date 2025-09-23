@@ -42,9 +42,6 @@ export function getLocalISODateTime(dateInput: Date = new Date()): string {
     .format(dateInput)
     .replace(",", "");
     
-  console.log(process.env.TIMEZONE || "Não possui no env...");
-  console.log(TIMEZONE);
-  console.log(parts.replace(" ", "T"));
   return parts.replace(" ", "T");
 }
 
