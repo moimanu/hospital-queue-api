@@ -44,3 +44,15 @@ export function getLocalISODateTime(dateInput: Date = new Date()): string {
     
   return parts.replace(" ", "T");
 }
+
+/**
+ * Retorna a data atual no formato YYYY-MM-DD
+ */
+export function getLocalISODate(dateInput: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(dateInput);
+}

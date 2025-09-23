@@ -2,6 +2,7 @@ import { db } from "../database/db";
 import { HospitalRecord, UrgencyClassification } from "../models/hospitalRecord";
 import { BrokenRecordRepository } from "./brokenRecordRepository";
 import { RecordFinishedRepository } from "./recordFinishedRepository";
+import { getLocalISODateTime } from "../helpers/dateHelper";
 
 export const RecordRepository = {
 
@@ -107,11 +108,12 @@ export const RecordRepository = {
   // Insert
 
   insertPatient(patient_id: string) {
+    const now = getLocalISODateTime();
     db.prepare(`
       INSERT INTO Record (
         patient_id, arrival_time, urgency_classification, status
-      ) VALUES (?, datetime('now', 'localtime'), 'triage', 'Waiting Triage')
-    `).run(patient_id);
+      ) VALUES (?, ?, 'triage', 'Waiting Triage')
+    `).run(patient_id, now);
   },
 
   insertWithoutData(patient_id: string) {
@@ -123,45 +125,70 @@ export const RecordRepository = {
   // Update
 
   updateTriageCall(patient_id: string) {
+    const now = getLocalISODateTime();
+
+    const rec = db.prepare(`
+      SELECT arrival_time FROM Record
+      WHERE patient_id = ? AND triage_call_time IS NULL
+    `).get(patient_id) as { arrival_time: string } | undefined;
+
+    if (!rec) return;
+
+    const arrival = new Date(rec.arrival_time).getTime();
+    const triageCall = new Date(now).getTime();
+    const waitSeconds = Math.round((triageCall - arrival) / 1000);
+
     db.prepare(`
       UPDATE Record
       SET 
-        triage_call_time = datetime('now', 'localtime'),
-        triage_wait_time = ROUND(
-          (julianday('now', 'localtime') - julianday(arrival_time)) * 24 * 60 * 60
-        ),
+        triage_call_time = ?,
+        triage_wait_time = ?,
         urgency_classification = 'triage',
         status = 'In Triage'
       WHERE patient_id = ? 
         AND triage_call_time IS NULL
-    `).run(patient_id);
+    `).run(now, waitSeconds, patient_id);
   },
 
   updateUrgencyDefinition(patient_id: string, classification: string) {
+    const now = getLocalISODateTime();
+
     db.prepare(`
       UPDATE Record
       SET 
-        urgency_definition_time = datetime('now', 'localtime'), 
+        urgency_definition_time = ?, 
         urgency_classification = ?, 
         status = 'Waiting Appointment'
       WHERE patient_id = ? 
         AND urgency_definition_time IS NULL
-    `).run(classification, patient_id);
+    `).run(now, classification, patient_id);
   },
 
   updateAppointmentCall(patient_id: string) {
+    const now = getLocalISODateTime();
+
     db.transaction(() => { 
+      const rec = db.prepare(`
+        SELECT urgency_definition_time
+        FROM Record
+        WHERE patient_id = ? AND appointment_call_time IS NULL
+      `).get(patient_id) as { urgency_definition_time: string } | undefined;
+
+      if (!rec) return;
+
+      const urgencyDef = new Date(rec.urgency_definition_time).getTime();
+      const appointmentCall = new Date(now).getTime();
+      const waitSeconds = Math.round((appointmentCall - urgencyDef) / 1000);
+
       db.prepare(`
         UPDATE Record
         SET 
-          appointment_call_time = datetime('now', 'localtime'),
-          appointment_wait_time = ROUND(
-            (julianday('now', 'localtime') - julianday(urgency_definition_time)) * 24 * 60 * 60
-          ),
+          appointment_call_time = ?,
+          appointment_wait_time = ?,
           status = 'Finished'
         WHERE patient_id = ? 
           AND appointment_call_time IS NULL
-      `).run(patient_id);
+      `).run(now, waitSeconds, patient_id);
 
       moveFinishedToBackup(patient_id);
     })(); 
@@ -192,7 +219,7 @@ export const RecordRepository = {
   // Deletes
 
   deleteRecord(patient_id: string) {
-    db.prepare(`DELETE FROM Record WHERE patient_id = ?`).run(patient_id);;
+    db.prepare(`DELETE FROM Record WHERE patient_id = ?`).run(patient_id);
   },
 };
 
