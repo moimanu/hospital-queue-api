@@ -5,9 +5,8 @@ const TIMEZONE = process.env.TIMEZONE || "America/Sao_Paulo";
  * mesmo que o servidor esteja em outro fuso.
  */
 function getDateForLocalMidnight(dateStr: string, timeZone: string): Date {
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const [y = 0, m = 1, d = 1] = dateStr.split("-").map(Number); // valores default
 
-  // Inicializa com um chute em UTC
   let utc = Date.UTC(y, m - 1, d, 0, 0, 0);
 
   for (let i = 0; i < 5; i++) {
@@ -27,15 +26,15 @@ function getDateForLocalMidnight(dateStr: string, timeZone: string): Date {
     }, {});
 
     const localUtc = Date.UTC(
-      Number(parts.year),
-      Number(parts.month) - 1,
-      Number(parts.day),
-      Number(parts.hour),
-      Number(parts.minute),
-      Number(parts.second)
+      Number(parts.year) || 0,
+      (Number(parts.month) - 1) || 0,
+      Number(parts.day) || 1,
+      Number(parts.hour) || 0,
+      Number(parts.minute) || 0,
+      Number(parts.second) || 0
     );
 
-    const offset = utc - localUtc; // diferença em ms
+    const offset = utc - localUtc;
     const desiredLocalUtc = Date.UTC(y, m - 1, d, 0, 0, 0);
     const newUtc = desiredLocalUtc + offset;
 
