@@ -16,11 +16,14 @@ function formatAvgTime(seconds) {
 
 // Calcula "há Xh Ymin" para timestamps ISO
 function timeAgo(isoDate) {
-  // Use date-fns-tz para garantir que a data seja interpretada no fuso horário UTC
-  const past = dateFnsTz.zonedTimeToUtc(isoDate);
-  // Calcula a diferença em relação à data e hora atuais, formatando para o português
-  const result = dateFns.formatDistanceToNow(past, { addSuffix: true, locale: dateFns.ptBR });
-  return result.replace('cerca de ', ''); // Opcional: remove "cerca de"
+  const now = new Date();
+  const past = new Date(isoDate); // interpreta ISO como UTC
+  const diffSeconds = Math.floor((now - past) / 1000);
+
+  if (diffSeconds < 60) return `${diffSeconds}s atrás`;
+  if (diffSeconds < 3600) return `${Math.floor(diffSeconds/60)}min atrás`;
+  if (diffSeconds < 86400) return `${Math.floor(diffSeconds/3600)}h atrás`;
+  return `${Math.floor(diffSeconds/86400)}d atrás`;
 }
 
 // ===================== Gráfico =====================
