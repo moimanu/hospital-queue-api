@@ -8,11 +8,8 @@ export function getLocalWeekday(dateInput: string | number | Date = new Date()):
   let date: Date;
 
   if (typeof dateInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
-    const parts = dateInput.split("-").map((p) => parseInt(p, 10));
-    const year = parts[0] ?? 0;
-    const month = parts[1] ?? 1;
-    const day = parts[2] ?? 1;
-    date = new Date(year, month - 1, day);
+    // Garante meia-noite no fuso configurado
+    date = new Date(dateInput + "T00:00:00");
   } else {
     date = new Date(dateInput);
   }
