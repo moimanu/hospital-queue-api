@@ -9,15 +9,23 @@ export function getLocalWeekday(dateInput: string | number | Date = new Date()):
 
   if (typeof dateInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
     // Garante meia-noite no fuso configurado
+    console.log("[getLocalWeekday] Recebido string (YYYY-MM-DD):", dateInput);
     date = new Date(dateInput + "T00:00:00");
+    console.log("[getLocalWeekday] Construído Date (UTC):", date.toISOString());
   } else {
+    console.log("[getLocalWeekday] Recebido outro tipo:", dateInput);
     date = new Date(dateInput);
+    console.log("[getLocalWeekday] Construído Date (UTC):", date.toISOString());
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  const weekday = new Intl.DateTimeFormat("en-US", {
     timeZone: TIMEZONE,
     weekday: "long",
   }).format(date);
+
+  console.log("[getLocalWeekday] Formatado para TIMEZONE", TIMEZONE, "=>", weekday);
+
+  return weekday;
 }
 
 /**
