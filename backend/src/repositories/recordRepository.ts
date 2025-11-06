@@ -194,13 +194,13 @@ export const RecordRepository = {
     })(); 
   },
 
-  alertLostRecordsForWaitingTriage () {
+  alertLostRecordsForWaitingTriage (patient_id: string) {
     db.prepare(`
       UPDATE Record
       SET 
         status = 'In Triage (superimposed)'
-      WHERE status = 'In Triage'
-    `).run();
+      WHERE status = 'In Triage' AND patient_id != ?
+    `).run(patient_id);
   },
 
   // Cancelamentos

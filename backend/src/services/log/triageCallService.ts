@@ -6,12 +6,12 @@ export const triageCallService = {
     const record = RecordRepository.findLatestByPatient(patient_id);
 
     if (!record) {
-      RecordRepository.alertLostRecordsForWaitingTriage();
+      RecordRepository.alertLostRecordsForWaitingTriage(patient_id);
       RecordRepository.insertWithoutData(patient_id);
       RecordRepository.updateTriageCall(patient_id);
 
     } else {
-      RecordRepository.alertLostRecordsForWaitingTriage();
+      RecordRepository.alertLostRecordsForWaitingTriage(patient_id);
       RecordRepository.updateTriageCall(patient_id);
     }
 
